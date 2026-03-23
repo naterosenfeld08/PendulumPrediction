@@ -1,0 +1,34 @@
+# Byte-compiled / caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Packaging / build
+*.egg-info/
+dist/
+build/
+
+# Coverage / tooling
+.coverage
+htmlcov/
+*.cover
+
+# IDE / OS
+.Desktop.ini
+.DS_Store
+.idea/
+
+# Generated simulation outputs (keep directory via .gitkeep)
+data/results/*
+!data/results/.gitkeep
+
+# Jupyter
+.ipynb_checkpoints/
