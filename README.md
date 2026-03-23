@@ -108,7 +108,9 @@ double_pendulum_sim/
 - **parameters:** ranges for masses, lengths, initial angles and angular velocities  
 - **integration:** time span, output count, RK45 tolerances, **hard** energy-drift limit  
 - **lyapunov:** chaos threshold \(\varepsilon\), initial separation \(\delta_0\), horizon \(T\)  
-- **statistics:** confidence level and bootstrap iteration count  
+- **statistics:** confidence level, bootstrap iteration count, optional GPR training cap, cheaper bootstrap counts for figures  
+- **inverse:** target variance cap and grid/bootstrap settings for the inverse angle solve  
+- **ensemble:** checkpoint interval and `joblib` worker count (`n_jobs`)  
 
 All simulation code is intended to **read these values** rather than hide tunables inside the source.
 
@@ -124,16 +126,63 @@ python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 pip install pytest          # if not already installed
-python -m pytest tests/test_physics.py -v
+python -m pytest tests/ -v
 ```
 
 A chaotic benchmark test writes a diagnostic figure of \(\delta(t)\) to `data/results/delta_chaotic_validation.png` for visual inspection of separation growth.
+
+### Full pipeline
+
+From the project directory (after installing dependencies):
+
+```bash
+python main.py                    # use existing ensemble Parquet if present
+python main.py --force            # re-run ensemble, then statistics, figures, report
+python main.py --config path.yaml --n 1000
+```
+
+Outputs include `data/results/ensemble_results.parquet`, `ensemble_checkpoint.parquet`, five figures under `data/results/`, and `data/results/summary_report.txt`. The default ensemble size (500) is computationally heavy; use `--force` only when you want a fresh run.
+
+---
+
+## Manim animations and GUI (optional)
+
+This repository also supports high-quality animated visualizations using ManimCE (Manim Community Edition).
+The animations are driven by **precomputed physics exports**, so Manim does not re-run the ODE during animation.
+
+### Setup
+
+```bash
+cd double_pendulum_sim
+pip install -r requirements-manim.txt
+pip install -r requirements-gui.txt
+```
+
+### Scenes
+
+Three scenes are provided:
+
+- `EnsembleChaosScene` — ensemble motion (default GUI ensemble size is 32).
+- `PhaseDensityAccumulationScene` — accumulated phase-space density in $(\\theta_2,\\omega_2)$ over time.
+- `DeltaAndThresholdScene` — finite-time separation $\delta(t)$ together with the logistic chaos threshold in $\\theta_{1,0}$.
+
+### GUI
+
+Run the tabbed GUI:
+
+```bash
+streamlit run gui_app.py
+```
+
+Click **Render scenes** to export trajectories/density frames and render MP4s. Each tab embeds the resulting animation with continuous-loop playback.
+
+Rendered videos and exported assets are written under `data/results/manim_sessions/<session_id>/`.
 
 ---
 
 ## Repository status
 
-The **nonlinear dynamics core** (equations of motion, high-accuracy integration, energy timeseries with a **strict** conservation check, and the **two-trajectory** Lyapunov helper used in tests) is implemented and covered by `tests/test_physics.py`. **Ensemble execution, Gaussian process fitting, logistic thresholding, reporting, and the full `main.py` pipeline** are specified in the project design and are completed incrementally on top of this validated physics layer.
+The **physics core**, **LHS ensemble** with checkpointed Parquet output, **GPR + bootstrap** variance model (with optional training subsampling), **logistic chaos threshold**, **inverse angle** solve, **matplotlib** diagnostics, **text report**, and **`main.py` CLI** are implemented. Tests in `tests/` cover physics, ensemble sampling/reproducibility, and statistics.
 
 ---
 

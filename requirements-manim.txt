@@ -1,0 +1,7 @@
+# Optional dependencies for rendering Manim animations.
+#
+# Installation steps depend on OS and renderer (OpenGL vs Cairo). See:
+# https://docs.manim.community/en/stable/installation.html
+
+manim
+

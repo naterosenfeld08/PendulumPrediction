@@ -1,0 +1,4 @@
+# Optional dependencies for the Manim GUI.
+
+streamlit
+
