@@ -1,18 +1,22 @@
 # Double Pendulum Chaos and Predictability
 
-This project studies a **classic chaotic system**: the planar double pendulum. The **primary research thread** is: **when does the dynamics become predictably chaotic, and how confidently can we state a boundary in initial conditions?** The first-class diagnostic pair is **neighbor separation δ(t)** plus a **logistic threshold in θ₁,₀** at a configured confidence level—implemented end-to-end in simulation, statistics, and the optional Manim GUI.
+Simulation and statistics for a **planar double pendulum**: full nonlinear dynamics, Lyapunov-style separation diagnostics, ensemble sampling, and optional Manim/Streamlit visualization.
 
-More broadly, the code connects **physics** (how the arms actually move), **dynamical systems theory** (whether motion is predictable or sensitive to tiny changes), and **statistics** (what we can say when parameters vary). It simulates many pendulums with different masses, lengths, and starting angles, measures how “chaotic” each run is, and builds models that relate initial conditions to **how unevenly kinetic energy is shared between the two bobs** over time.
+**Central question:** *When does the motion behave like sensitive, hard-to-predict chaos, and how confidently can we state a boundary in initial conditions?* The main outputs are **neighbor separation δ(t)** and a **logistic threshold in θ₁,₀** at a configured confidence level—wired through `main.py`, `config.yaml`, and (optionally) the GUI.
 
-### Phased visualization roadmap
+Broader pipeline: LHS ensembles, finite-time chaos labels, **GPR + bootstrap** on an energy-ratio variance proxy, **logistic regression** for a marginal θ₁ threshold, and an inverse-style solve. See **Limitations and scope** for what these choices do *not* claim.
+
+**Contents:** [Motivation](#why-this-system-matters) · [Model & integration](#physical-model) · [Chaos labels](#chaos-diagnosis-separation-of-nearby-trajectories) · [Statistics](#statistical-layer-ensemble-design) · [Limitations](#limitations-and-scope) · [Layout & config](#project-layout) · [CLI & tests](#installation-and-tests) · [GUI / Manim](#manim-animations-and-gui-optional) · [Roadmap](#roadmap)
+
+### Visualization phases (GUI)
 
 | Phase | Focus | Status |
 |-------|--------|--------|
-| **1** | **Scene 3** — δ(t) + logistic threshold; live matplotlib default; versioned export manifest | **Primary** |
-| **2** | **Scenes 1–2** — ensemble motion and phase-space density (GUI: optional “experimental” tabs) | After Scene 3 quality gates |
-| **3** | Broader scene library / polish | Future |
+| **1** | **δ(t) + threshold** — primary tab; live matplotlib; versioned export manifest | **Current** |
+| **2** | Ensemble + phase-space density (sidebar: experimental tabs) | After quality gates on Phase 1 |
+| **3** | Broader polish / extra scenes | Future |
 
-Quality gates before expanding Phase 2: Scene 3 runs smoothly in live mode without overlapping labels; axes and legend are unambiguous; optional MP4 export matches the live view.
+Phase 2 is gated on stable live playback, clear axes/legends, and optional MP4 matching the live δ(t) view.
 
 ---
 
@@ -69,13 +73,7 @@ One practical way to quantify sensitivity is the **maximal Lyapunov exponent (ML
 
 A run is labeled **chaotic** when \(\lambda > \varepsilon\), with \(\varepsilon\) configurable (a strict choice is \(\varepsilon = 0\)).
 
-**Important caveats (read once, remember later):**
-
-- Any **finite-time** \(\lambda\) is an **estimate**, not an asymptotic invariant; transients and near-recurrences can distort short windows.
-- In truly chaotic motion, \(\delta(t)\) eventually **saturates** at the scale of the attractor; very long horizons need more sophisticated **renormalization** schemes not used here.
-- The method perturbs **only \(\theta_1\)** initially; that probes a **specific direction** in state space. The **maximal** exponent is a supremum over directions; a single direction can underestimate growth or behave intermittently.
-
-These points do not invalidate the workflow—they are standard context for interpreting Lyapunov numbers from simulation.
+**Caveats in brief:** finite-time \(\lambda\) is not an asymptotic exponent; separation can **saturate** (no renormalization here); perturbation is **only in \(\theta_1\)**. For a full discussion of what this implies—and how the chaos label and statistics relate—see **Limitations and scope**.
 
 ---
 
@@ -93,21 +91,41 @@ Together, these steps connect **nonlinear mechanics**, **sensitivity analysis**,
 
 ---
 
+## Limitations and scope
+
+The pipeline is a **computational study** with explicit tradeoffs. The main limitations are:
+
+1. **Lyapunov-style sensitivity is crude for general claims.** The estimate uses a **single perturbation direction** (\(\theta_1\) only), **no renormalization** when separation grows, and a **finite-time** horizon—so bias from transients, saturation, and direction choice is expected. Treat it as a **local sensitivity probe**, not a full Lyapunov spectrum or asymptotic exponent.
+
+2. **The chaos label \(\lambda > \varepsilon\) is a working rule, not physics.** It is **arbitrary** in the sense that it encodes a study-specific cutoff. It is **sensitive** to horizon \(T\), initial scale \(\delta_0\), and numerical tolerances; changing those changes who gets labeled chaotic.
+
+3. **Logistic regression on \(\theta_{1,0}\) alone is a deliberate simplification.** It reduces a **high-dimensional** initial condition (and parameter) space to a **single marginal** coordinate. **Interactions** with \(\theta_2\), angular velocities, masses, and lengths are **not** represented in that boundary—interpret it as an interpretable 1D summary, not a complete predictor.
+
+4. **Energy-variance (and related) proxies are not standard chaos metrics.** Summaries based on how \(\mathrm{KE}_2/\mathrm{KE}_{\mathrm{total}}\) varies over time measure **irregularity of energy sharing** in the window you simulate. **Correlation** with a chaos label based on \(\delta(t)\) is **not** equivalence with a textbook definition of chaos.
+
+**Despite this**, the workflow is **internally consistent**: the same definitions drive simulation, labeling, and statistics end to end, and the tradeoffs above are **explicit and reasonable** for a bounded numerical exploration—provided results are read as **conditional on those definitions**, not as universal statements about the double pendulum.
+
+---
+
 ## Project layout
 
 ```text
 double_pendulum_sim/
-├── config.yaml           # ensemble sizes, parameter ranges, integrator, Lyapunov, statistics
-├── main.py               # full pipeline entry point (orchestration)
+├── config.yaml
+├── main.py
+├── gui_app.py            # Streamlit: δ(t)+threshold primary; optional experimental scenes
 ├── requirements.txt
+├── requirements-manim.txt
+├── requirements-gui.txt
 ├── README.md
+├── manim_scenes/         # Manim scenes (export-driven)
 ├── src/
-│   ├── physics/          # equations of motion, integration, energy + conservation check
-│   ├── ensemble/         # LHS sampling, parallel runs, Lyapunov, incremental I/O
-│   ├── stats/            # GPR, bootstrap CIs, logistic threshold, inverse problem
-│   └── output/           # figures and text report
-├── data/results/         # simulation outputs and generated plots
-└── tests/                # physics, ensemble, and statistics tests
+│   ├── physics/
+│   ├── ensemble/
+│   ├── stats/
+│   └── output/           # figures, report, manim_export / manim_render helpers
+├── data/results/         # Parquet, figures, manim_sessions/
+└── tests/
 ```
 
 ---
@@ -116,13 +134,12 @@ double_pendulum_sim/
 
 `config.yaml` groups settings for:
 
-- **ensemble:** number of pendulums, random seed  
+- **ensemble:** number of pendulums, random seed, checkpoint interval, `joblib` workers (`n_jobs`)  
 - **parameters:** ranges for masses, lengths, initial angles and angular velocities  
 - **integration:** time span, output count, RK45 tolerances, **hard** energy-drift limit  
 - **lyapunov:** chaos threshold \(\varepsilon\), initial separation \(\delta_0\), horizon \(T\)  
 - **statistics:** confidence level, bootstrap iteration count, optional GPR training cap, cheaper bootstrap counts for figures  
 - **inverse:** target variance cap and grid/bootstrap settings for the inverse angle solve  
-- **ensemble:** checkpoint interval and `joblib` worker count (`n_jobs`)  
 
 All simulation code is intended to **read these values** rather than hide tunables inside the source.
 
@@ -142,6 +159,8 @@ python -m pytest tests/ -v
 ```
 
 A chaotic benchmark test writes a diagnostic figure of \(\delta(t)\) to `data/results/delta_chaotic_validation.png` for visual inspection of separation growth.
+
+**Validation reports:** documented ensemble validation runs, metrics, and reproducibility notes live under [Validation Test Reports](Validation%20Test%20Reports/README.md) (including generated figures after `main.py`).
 
 ### Full pipeline
 
@@ -198,9 +217,22 @@ Rendered videos and exported assets are written under `data/results/manim_sessio
 
 ---
 
+## Roadmap
+
+Short list of directions that build on the current design (not an immediate commitment):
+
+- **Sensitivity / Lyapunov:** multiple perturbation directions; optional Benettin-style or renormalized separation windows; sensitivity of \(\lambda\) to \(T\) and \(\delta_0\) (sweeps or plots).
+- **Classification:** replace or complement \(\lambda > \varepsilon\) with a reported **ROC** or calibration curve; document dependence on \(T\).
+- **Statistics:** multivariate logistic or GAM including \(\theta_2\), \(\omega\), or key parameters; interaction terms where data support them.
+- **GUI / Manim:** finish Phase 2 scenes (smooth live playback, color semantics, no duplicate static panels); optional **Streamlit Cloud** or one-command demo.
+- **Reproducibility:** pinned optional `requirements-lock`, small **fixture session** for Manim/GUI smoke tests, CI on `pytest`.
+- **Write-up:** short methods note (PDF or `docs/`) mirroring **Limitations and scope** for a portfolio or preprint.
+
+---
+
 ## Repository status
 
-The **physics core**, **LHS ensemble** with checkpointed Parquet output, **GPR + bootstrap** variance model (with optional training subsampling), **logistic chaos threshold**, **inverse angle** solve, **matplotlib** diagnostics, **text report**, and **`main.py` CLI** are implemented. Tests in `tests/` cover physics, ensemble sampling/reproducibility, and statistics.
+Implemented: nonlinear integrator with energy checks, LHS ensemble + Lyapunov-style labels, GPR/bootstrap, logistic threshold, inverse solve, matplotlib report, CLI, tests (`tests/`), and optional GUI/Manim export path.
 
 ---
 

@@ -10,7 +10,7 @@ import yaml
 from scipy.signal import find_peaks
 
 from ensemble.lyapunov import compute_mle, save_delta_curve, separation_timeseries
-from physics.energy import compute_energy_timeseries
+from physics.energy import compute_energy_timeseries, scaled_max_energy_drift
 from physics.integrator import integrate
 from physics.pendulum import dstate_dt
 
@@ -29,7 +29,7 @@ def test_energy_conservation_hard_assertion(base_config: dict) -> None:
     t, y = integrate(dstate_dt, state0, params, base_config)
     energies = compute_energy_timeseries(t, y, params, base_config)
     e0 = float(energies["E_total"][0])
-    drift = np.max(np.abs(energies["E_total"] - e0)) / abs(e0)
+    drift = scaled_max_energy_drift(energies["E_total"], e0, params)
     assert drift <= float(base_config["integration"]["energy_drift_max_relative"])
 
 

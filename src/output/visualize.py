@@ -9,8 +9,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from numpy.typing import NDArray
-from sklearn.linear_model import LogisticRegression
-
 from physics.integrator import integrate
 from physics.pendulum import dstate_dt
 from stats.stats import predict_with_ci
@@ -128,9 +126,7 @@ def plot_phase_portraits_three_runs(
 
 
 def plot_logistic_threshold(
-    clf: LogisticRegression,
-    threshold_angle: float,
-    p_target: float,
+    threshold_info: Mapping[str, Any],
     config: Mapping[str, Any],
     out_dir: Path,
 ) -> None:
@@ -139,7 +135,14 @@ def plot_logistic_threshold(
         float(config["parameters"]["theta1"][1]),
         400,
     )
-    p = chaos_probability_vs_theta(clf, th)
+    clf = threshold_info["logistic_model"]
+    if clf is None:
+        p_val = float(threshold_info["p_chaotic_grid"][0])
+        p = np.full_like(th, p_val, dtype=float)
+    else:
+        p = chaos_probability_vs_theta(clf, th)
+    threshold_angle = float(threshold_info["threshold_angle"])
+    p_target = float(threshold_info["p_target"])
 
     fig, ax = plt.subplots(figsize=(7, 4.5))
     ax.plot(th, p, color="C1", lw=2, label=r"$P(\mathrm{chaotic}\mid \theta_{1,0})$")
@@ -166,14 +169,7 @@ def generate_all_figures(
     plot_theta1_vs_mle(df, out)
     plot_theta1_vs_variance_with_ci(df, model, config, out)
     plot_mle_histogram(df, out)
-    clf = threshold_info["logistic_model"]
-    plot_logistic_threshold(
-        clf,
-        float(threshold_info["threshold_angle"]),
-        float(threshold_info["p_target"]),
-        config,
-        out,
-    )
+    plot_logistic_threshold(threshold_info, config, out)
     plot_phase_portraits_three_runs(
         df,
         config,

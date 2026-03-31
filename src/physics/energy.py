@@ -8,6 +8,29 @@ import numpy as np
 from numpy.typing import NDArray
 
 
+def scaled_max_energy_drift(
+    e_total: NDArray[np.floating],
+    e0: float,
+    params: Mapping[str, Any],
+) -> float:
+    """Max |E(t)-E(0)| divided by a robust scale.
+
+    Using only ``|E(0)|`` in the denominator is ill-conditioned when total mechanical
+    energy is very small (near-separatrix initial data): tiny integrator noise looks
+    like a huge *relative* drift. We therefore compare drift to
+    ``max(|E(0)|, 0.01 * E_char)``, where ``E_char`` is a gravitational energy scale
+    built from masses and lengths (order of magnitude of |PE| for O(1) rad angles).
+    """
+    m1 = float(params["m1"])
+    m2 = float(params["m2"])
+    L1 = float(params["L1"])
+    L2 = float(params["L2"])
+    g = float(params["g"])
+    e_char = float(m1 * g * L1 + m2 * g * (L1 + L2))
+    denom = max(abs(float(e0)), 0.01 * e_char)
+    return float(np.max(np.abs(e_total - float(e0))) / denom)
+
+
 def compute_energy_timeseries(
     t_array: NDArray[np.floating],
     state_array: NDArray[np.floating],
@@ -21,7 +44,8 @@ def compute_energy_timeseries(
     Raises
     ------
     AssertionError
-        If max |E(t) - E(0)| / |E(0)| exceeds ``integration.energy_drift_max_relative``.
+        If scaled drift (see ``scaled_max_energy_drift``) exceeds
+        ``integration.energy_drift_max_relative``.
     """
     m1 = float(params["m1"])
     m2 = float(params["m2"])
@@ -55,12 +79,12 @@ def compute_energy_timeseries(
 
     e_total = ke1 + ke2 + pe1 + pe2
     e0 = float(e_total[0])
-    max_rel_drift = float(np.max(np.abs(e_total - e0)) / max(abs(e0), np.finfo(float).tiny))
+    max_rel_drift = scaled_max_energy_drift(e_total, e0, params)
 
     limit = float(config["integration"]["energy_drift_max_relative"])
     assert max_rel_drift <= limit, (
-        "Energy conservation failed: max relative drift "
-        f"{max_rel_drift:.3e} exceeds allowed {limit:.3e} (|E0|={abs(e0):.6e})."
+        "Energy conservation failed: scaled max energy drift "
+        f"{max_rel_drift:.3e} exceeds allowed {limit:.3e} (E0={e0:.6e})."
     )
 
     return {

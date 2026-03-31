@@ -385,38 +385,7 @@ def export_manim_session(
             "is_chaotic": df_threshold["is_chaotic"].astype(bool),
         }
     )
-    try:
-        threshold_info = find_chaos_threshold(df, config)
-    except ValueError:
-        # Logistic regression needs both classes. If a tiny ensemble produces
-        # only regular or only chaotic samples, fall back to a degenerate model.
-        st = config["statistics"]
-        conf = float(st["confidence_level"])
-        p_target = 1.0 - conf
-
-        theta1_min = float(config["parameters"]["theta1"][0])
-        theta1_max = float(config["parameters"]["theta1"][1])
-        theta_grid = np.linspace(theta1_min, theta1_max, 512, dtype=np.float64)
-
-        all_chaotic = bool(df["is_chaotic"].all())
-        p_const = 1.0 if all_chaotic else 0.0
-        p_grid = np.full_like(theta_grid, p_const, dtype=np.float64)
-
-        # Choose a threshold consistent with the (degenerate) constant probability.
-        if p_const >= p_target:
-            threshold_angle = theta1_min
-        else:
-            threshold_angle = theta1_max
-
-        threshold_info = {
-            "threshold_angle": float(threshold_angle),
-            "threshold_angle_deg": float(np.degrees(threshold_angle)),
-            "confidence_level": conf,
-            "p_target": p_target,
-            "theta_grid": theta_grid,
-            "p_chaotic_grid": p_grid,
-            "logistic_model": None,
-        }
+    threshold_info = find_chaos_threshold(df, config)
 
     # Store logistic curve grid values for stable rendering in Manim.
     theta_grid = threshold_info["theta_grid"].astype(np.float64)
