@@ -189,31 +189,33 @@ pip install -r requirements-manim.txt
 pip install -r requirements-gui.txt
 ```
 
-### Scenes
-
-- **`DeltaAndThresholdScene` (primary)** — finite-time separation $\delta(t)$ together with the logistic chaos threshold in $\\theta_{1,0}$. This is the default GUI experience.
-- **`EnsembleChaosScene` (experimental)** — ensemble motion (default GUI ensemble size is 32).
-- **`PhaseDensityAccumulationScene` (experimental)** — accumulated phase-space density in $(\\theta_2,\\omega_2)$ over time.
-
-Enable the experimental tabs in the sidebar when you want to revisit ensemble and phase-density views.
-
-### GUI
-
-Run the GUI:
+### GUI (interactive analysis)
 
 ```bash
 streamlit run gui_app.py
 ```
 
-**Default behavior:** **Live matplotlib** playback of the exported arrays (single shared frame clock; each tab loops with its own modulo). **Rendered MP4** is optional—opt in when you want shareable Manim files.
+The app lets you set **LHS parameter ranges**, **ensemble size** (default **48**), **confidence level** (for the logistic threshold), **Lyapunov** settings (ε, δ₀, horizon T), and **integration** span. Quick **presets** (*Mild* / *Mixed* / *Wild*) adjust θ₁, θ₂, and angular-velocity boxes; *Mixed* matches `config.yaml`. Click **Run ensemble & statistics** to:
 
-Click **Render scenes** to export trajectories and density frames. Optional MP4 rendering is controlled separately; with experimental scenes off, only `DeltaAndThresholdScene` is rendered to disk when MP4 is enabled.
+1. **Simulate** the full ensemble (same pipeline as `main.py` for that run).
+2. **Fit** GPR on energy-ratio variance and **logistic** P(chaotic|θ₁) at your confidence.
+3. **Visualize** (matplotlib, live): ensemble motion, **three phase portraits** (min / median / max λ in $(\\theta_1,\\omega_1)$), accumulated **(θ₂, ω₂)** density, and **δ(t) + logistic threshold** — all driven by the **same** DataFrame as the statistics.
+
+Sessions are written under `data/results/gui_sessions/<id>/` (NPZ + manifest, compatible with the Scene 3 contract).
+
+### Manim / optional MP4
+
+For **pre-rendered Manim** scenes, use `export_manim_session` / `manim_render` (CLI or scripts). Manim scenes:
+
+- **`DeltaAndThresholdScene`** — δ(t) + logistic threshold.
+- **`EnsembleChaosScene`** — ensemble motion.
+- **`PhaseDensityAccumulationScene`** — accumulated phase-space density in $(\\theta_2,\\omega_2)$.
 
 ### Export contract (`session_manifest.json`)
 
-Each session folder includes `session_manifest.json` with **`export_contract_version`** (currently `"1.0"`) and a list of required keys for the Scene 3 NPZ. Export runs **validation** before finishing so the GUI and Manim always see a consistent schema.
+Each session folder includes **`export_contract_version`** (currently `"1.0"`) and required keys for the Scene 3 NPZ. Manim export runs validation; GUI sessions perform a lightweight NPZ key check.
 
-Rendered videos and exported assets are written under `data/results/manim_sessions/<session_id>/`.
+Rendered Manim assets default to `data/results/manim_sessions/<session_id>/`.
 
 ---
 

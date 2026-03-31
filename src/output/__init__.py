@@ -1,6 +1,5 @@
-"""Figures and text report."""
+"""Output package (figures, reports, exports).
 
-from .report import build_report_text, write_report
-from .visualize import generate_all_figures
-
-__all__ = ["build_report_text", "generate_all_figures", "write_report"]
+Import submodules explicitly, e.g. ``from output.visualize import generate_all_figures``,
+to avoid loading optional dependencies at import time.
+"""
