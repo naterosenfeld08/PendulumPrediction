@@ -64,12 +64,12 @@ class PhaseDensityAccumulationScene(Scene):
         ax_cha = Axes(**axes_kwargs).to_edge(RIGHT, buff=0.8)
 
         reg_labels = ax_reg.get_axis_labels(
-            MathTex(r"\theta_2").scale(0.7),
-            MathTex(r"\omega_2").scale(0.7),
+            MathTex(r"\theta_2\ (\mathrm{rad})").scale(0.62),
+            MathTex(r"\omega_2\ (\mathrm{rad}/\mathrm{s})").scale(0.56),
         )
         cha_labels = ax_cha.get_axis_labels(
-            MathTex(r"\theta_2").scale(0.7),
-            MathTex(r"\omega_2").scale(0.7),
+            MathTex(r"\theta_2\ (\mathrm{rad})").scale(0.62),
+            MathTex(r"\omega_2\ (\mathrm{rad}/\mathrm{s})").scale(0.56),
         )
         reg_title = Text("Regular subset", weight="BOLD").scale(0.45).next_to(ax_reg, UP, buff=0.18)
         cha_title = Text("Chaotic subset", weight="BOLD").scale(0.45).next_to(ax_cha, UP, buff=0.18)

@@ -21,6 +21,59 @@ from physics.integrator import integrate
 from physics.pendulum import dstate_dt
 from stats.threshold import find_chaos_threshold
 
+# Versioned contract for GUI / Manim consumers (Scene 3 primary).
+EXPORT_CONTRACT_VERSION = "1.0"
+
+SCENE3_NPZ_REQUIRED_KEYS: tuple[str, ...] = (
+    "t",
+    "delta_regular",
+    "delta_chaotic",
+    "mle_regular",
+    "mle_chaotic",
+    "theta1_grid",
+    "p_chaotic_grid",
+    "threshold_angle",
+    "threshold_angle_deg",
+    "confidence_level",
+    "p_target",
+)
+
+
+def validate_manim_session(session_dir: Path) -> dict[str, Any]:
+    """Validate ``session_manifest.json`` and Scene 3 NPZ contract.
+
+    Raises
+    ------
+    FileNotFoundError, ValueError
+        If manifest is missing, version mismatches, or required arrays are absent.
+    """
+    session_dir = Path(session_dir).resolve()
+    manifest_path = session_dir / "session_manifest.json"
+    if not manifest_path.is_file():
+        raise FileNotFoundError(f"No session manifest at {manifest_path}")
+
+    manifest: dict[str, Any] = json.loads(manifest_path.read_text(encoding="utf-8"))
+    ver = manifest.get("export_contract_version")
+    if ver != EXPORT_CONTRACT_VERSION:
+        raise ValueError(
+            f"Unsupported export_contract_version={ver!r}; expected {EXPORT_CONTRACT_VERSION!r}. "
+            "Re-export the session with the current code."
+        )
+
+    npz_name = manifest.get("delta_threshold_npz")
+    if not npz_name:
+        raise ValueError("Manifest missing delta_threshold_npz filename.")
+    npz_path = session_dir / str(npz_name)
+    if not npz_path.is_file():
+        raise FileNotFoundError(f"Scene 3 data missing: {npz_path}")
+
+    data = np.load(npz_path)
+    missing = [k for k in SCENE3_NPZ_REQUIRED_KEYS if k not in data.files]
+    if missing:
+        raise ValueError(f"delta_threshold_data.npz missing keys: {missing}")
+
+    return manifest
+
 
 def _project_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -388,6 +441,8 @@ def export_manim_session(
     )
 
     manifest = {
+        "export_contract_version": EXPORT_CONTRACT_VERSION,
+        "scene3_npz_required_keys": list(SCENE3_NPZ_REQUIRED_KEYS),
         "n_ensemble": int(n_ensemble),
         "rng_seed": int(rng_seed),
         "t_video_length": int(len(t_video)),
@@ -405,5 +460,6 @@ def export_manim_session(
         json.dumps(manifest, indent=2), encoding="utf-8"
     )
 
+    validate_manim_session(session_dir)
     return session_dir
 

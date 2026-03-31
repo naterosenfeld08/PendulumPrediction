@@ -51,7 +51,7 @@ def _embed_looping_video(b64: str) -> None:
     st.components.v1.html(html, height=480)
 
 
-def _render_live_ensemble(npz_path: Path, frame_idx: int) -> None:
+def _render_live_ensemble(npz_path: Path, frame_pos: float) -> None:
     data = np.load(npz_path)
     theta1 = data["theta1"]
     theta2 = data["theta2"]
@@ -61,7 +61,14 @@ def _render_live_ensemble(npz_path: Path, frame_idx: int) -> None:
     t = data["t"]
 
     n_ensemble, n_frames = theta1.shape
-    k = int(np.clip(frame_idx, 0, n_frames - 1))
+    if n_frames < 2:
+        k0 = k1 = 0
+        alpha = 0.0
+    else:
+        x = float(frame_pos) % float(n_frames - 1)
+        k0 = int(np.floor(x))
+        k1 = min(k0 + 1, n_frames - 1)
+        alpha = x - k0
 
     cols = int(np.ceil(np.sqrt(n_ensemble)))
     rows = int(np.ceil(n_ensemble / cols))
@@ -83,8 +90,8 @@ def _render_live_ensemble(npz_path: Path, frame_idx: int) -> None:
         c = i % cols
         x0 = (c - (cols - 1) / 2.0) * pad_x
         y0 = ((rows - 1) / 2.0 - r) * pad_y
-        th1 = float(theta1[i, k])
-        th2 = float(theta2[i, k])
+        th1 = float((1.0 - alpha) * theta1[i, k0] + alpha * theta1[i, k1])
+        th2 = float((1.0 - alpha) * theta2[i, k0] + alpha * theta2[i, k1])
         l1 = float(L1[i]) * scale
         l2 = float(L2[i]) * scale
         x1 = x0 + l1 * np.sin(th1)
@@ -99,14 +106,17 @@ def _render_live_ensemble(npz_path: Path, frame_idx: int) -> None:
     ax.set_aspect("equal", adjustable="box")
     ax.set_xlim(-frame_w / 2 - 0.4, frame_w / 2 + 0.4)
     ax.set_ylim(-frame_h / 2 - 0.4, frame_h / 2 + 0.4)
-    ax.set_xticks([])
-    ax.set_yticks([])
+    ax.set_xlabel("x (m)", color="#dce5f0")
+    ax.set_ylabel("y (m)", color="#dce5f0")
+    ax.tick_params(colors="#dce5f0")
     for sp in ax.spines.values():
-        sp.set_visible(False)
+        sp.set_color("#95a2b3")
+    n_reg = int((~chaotic).sum())
+    n_cha = int(chaotic.sum())
     ax.text(
         0.01,
         0.98,
-        f"t = {float(t[k]):.2f} s",
+        f"t = {float((1.0 - alpha) * t[k0] + alpha * t[k1]):.2f} s\nregular={n_reg}, chaotic={n_cha}",
         transform=ax.transAxes,
         va="top",
         ha="left",
@@ -116,7 +126,7 @@ def _render_live_ensemble(npz_path: Path, frame_idx: int) -> None:
     st.pyplot(fig, clear_figure=True, use_container_width=True)
 
 
-def _render_live_phase_density(session_dir: Path, frame_idx: int) -> None:
+def _render_live_phase_density(session_dir: Path, frame_idx: int) -> int:
     npz = np.load(session_dir / "ensemble_scene_data.npz")
     omega_edges = npz["omega_edges"]
     omega_min, omega_max = float(omega_edges[0]), float(omega_edges[-1])
@@ -125,9 +135,9 @@ def _render_live_phase_density(session_dir: Path, frame_idx: int) -> None:
     cha_paths = sorted((session_dir / "density_frames_chaotic").glob("frame_*.png"))
     if not reg_paths or not cha_paths:
         st.warning("No density frames found for live display.")
-        return
+        return 1
     n_frames = min(len(reg_paths), len(cha_paths))
-    k = int(np.clip(frame_idx, 0, n_frames - 1))
+    k = int(frame_idx % n_frames)
 
     reg = plt.imread(reg_paths[k])
     cha = plt.imread(cha_paths[k])
@@ -148,9 +158,10 @@ def _render_live_phase_density(session_dir: Path, frame_idx: int) -> None:
         for sp in ax.spines.values():
             sp.set_color("#95a2b3")
     st.pyplot(fig, clear_figure=True, use_container_width=True)
+    return n_frames
 
 
-def _render_live_delta_threshold(npz_path: Path, frame_idx: int) -> None:
+def _render_live_delta_threshold(npz_path: Path, frame_idx: int) -> int:
     d = np.load(npz_path)
     t = d["t"].astype(float)
     dr = d["delta_regular"].astype(float)
@@ -163,7 +174,7 @@ def _render_live_delta_threshold(npz_path: Path, frame_idx: int) -> None:
     th_star = float(d["threshold_angle"])
 
     n_frames = len(t)
-    k = int(np.clip(frame_idx, 0, n_frames - 1))
+    k = int(frame_idx % max(1, n_frames))
 
     fig, axes = plt.subplots(2, 1, figsize=(10.5, 7.0), dpi=120)
     fig.patch.set_facecolor("#0b1220")
@@ -174,12 +185,24 @@ def _render_live_delta_threshold(npz_path: Path, frame_idx: int) -> None:
             sp.set_color("#95a2b3")
 
     ax1, ax2 = axes
-    ax1.plot(t, np.log10(np.clip(dr, 1e-30, None)), color="#4ea1ff", lw=2.4, label=f"regular  λ={mle_r:.2f}")
-    ax1.plot(t, np.log10(np.clip(dc, 1e-30, None)), color="#ff8f3f", lw=2.4, label=f"chaotic  λ={mle_c:.2f}")
+    ax1.plot(
+        t[: k + 1],
+        np.log10(np.clip(dr[: k + 1], 1e-30, None)),
+        color="#4ea1ff",
+        lw=2.4,
+        label=f"regular  λ={mle_r:.2f}",
+    )
+    ax1.plot(
+        t[: k + 1],
+        np.log10(np.clip(dc[: k + 1], 1e-30, None)),
+        color="#ff8f3f",
+        lw=2.4,
+        label=f"chaotic  λ={mle_c:.2f}",
+    )
     yk = np.log10(max(float(dc[k]), 1e-30))
     ax1.scatter([t[k]], [yk], s=26, color="#ff8f3f", zorder=3)
     ax1.set_xlabel("t (s)")
-    ax1.set_ylabel(r"$\log_{10}\delta(t)$")
+    ax1.set_ylabel(r"$\log_{10}\delta(t)$ (dimensionless)")
     ax1.legend(frameon=False, labelcolor="#dce5f0")
 
     ax2.plot(th, p, color="#bf8cff", lw=2.4, label=r"$P(\mathrm{chaotic}\mid\theta_{1,0})$")
@@ -187,10 +210,11 @@ def _render_live_delta_threshold(npz_path: Path, frame_idx: int) -> None:
     ax2.axvline(th_star, color="#ff4d4d", ls="--", lw=1.4, label=fr"$\theta_1^*={th_star:.3f}$ rad")
     ax2.scatter([th_star], [p_target], s=30, color="#ff4d4d")
     ax2.set_xlabel(r"$\theta_{1,0}$ (rad)")
-    ax2.set_ylabel("probability")
+    ax2.set_ylabel("P (dimensionless)")
     ax2.legend(frameon=False, labelcolor="#dce5f0")
 
     st.pyplot(fig, clear_figure=True, use_container_width=True)
+    return n_frames
 
 
 def _scene_descriptions() -> dict[str, str]:
@@ -210,6 +234,19 @@ def _scene_descriptions() -> dict[str, str]:
             "Bottom: logistic chaos probability versus theta1 with the configured threshold marker."
         ),
     }
+
+
+def _what_you_are_seeing_delta() -> str:
+    return (
+        "**Slope of log₁₀ δ(t):** On average, a positive slope means separation is growing "
+        "exponentially in that window (sensitive dependence). Flattening or saturation can appear "
+        "when trajectories leave the linear regime or when the horizon is short.\n\n"
+        "**Finite-time λ labels:** These are estimates from δ(T)/δ₀ at the configured Lyapunov "
+        "horizon—they are not asymptotic Lyapunov exponents.\n\n"
+        "**Threshold θ₁\*:** The angle where the fitted logistic curve reaches the target "
+        "probability (from your confidence level). The horizontal dashed line is that target; "
+        "the vertical line marks θ₁\* on the θ₁ axis."
+    )
 
 
 def _inject_style() -> None:
@@ -270,18 +307,19 @@ def _inject_style() -> None:
 
 
 def main() -> None:
-    st.set_page_config(page_title="Double Pendulum Manim Explorer", layout="wide")
+    st.set_page_config(page_title="Double pendulum — δ(t) + threshold", layout="wide")
     _inject_style()
 
     st.markdown(
         """
         <div class="card">
           <div style="font-size: 1.2rem; line-height: 1.2; margin-bottom: 6px;">
-            <span class="accent-text">Double Pendulum</span> — Manim visualization explorer
+            <span class="accent-text">Research focus</span> — when does a double pendulum become predictably chaotic?
           </div>
           <div class="subtle">
-            Render from precomputed simulation assets into three continuously looping scenes:
-            ensemble motion, accumulated phase-space density in (θ₂, ω₂), and δ(t) + logistic threshold.
+            The primary view is <strong>δ(t) + threshold</strong>: neighbor separation versus time and a logistic
+            boundary in θ₁ at your chosen confidence. Optional “experimental” tabs add ensemble motion and
+            phase-space density once this core scene is stable.
           </div>
         </div>
         """,
@@ -293,6 +331,8 @@ def main() -> None:
         st.session_state["assets"] = {}
     if "frame_idx" not in st.session_state:
         st.session_state["frame_idx"] = 0
+    if "frame_pos" not in st.session_state:
+        st.session_state["frame_pos"] = 0.0
 
     with st.sidebar:
         st.header("Parameters")
@@ -317,16 +357,35 @@ def main() -> None:
         density_frames = st.slider("Density frames", min_value=10, max_value=40, value=20, step=5)
 
         st.divider()
-        st.subheader("Manim quality")
-        quality = st.selectbox("Render quality", options=["low", "medium", "high", "2k"], index=2)
-        render_manim_mp4 = st.checkbox("Also render MP4 scenes (optional)", value=True)
+        st.subheader("Experimental scenes")
+        experimental_scenes = st.checkbox(
+            "Show ensemble + phase density tabs (secondary)",
+            value=False,
+            help="When off, only the δ(t) + threshold view is shown—the recommended default.",
+        )
 
         st.divider()
-        st.subheader("Live playback")
-        autoplay = st.checkbox("Autoplay live scenes", value=False)
-        fps = st.slider("Live FPS", min_value=2, max_value=24, value=8, step=1)
-        if st.button("Reset frame"):
+        st.subheader("Manim quality")
+        quality = st.selectbox("Render quality", options=["low", "medium", "high", "2k"], index=2)
+        render_manim_mp4 = st.checkbox(
+            "Also render MP4 (optional export)",
+            value=False,
+            help="Default viewing is live matplotlib; MP4 is for sharing or comparing to Manim.",
+        )
+
+        st.divider()
+        st.subheader("Display")
+        display_mode = st.selectbox(
+            "View",
+            options=["Live data", "Rendered MP4"],
+            index=0,
+            help="Live data is the default; MP4 uses files from the last render when enabled.",
+        )
+        autoplay = st.checkbox("Autoplay (live mode)", value=True)
+        fps = st.slider("Live FPS", min_value=2, max_value=30, value=14, step=1)
+        if st.button("Reset frame clock"):
             st.session_state["frame_idx"] = 0
+            st.session_state["frame_pos"] = 0.0
 
         st.divider()
         st.subheader("Parameter ranges (for LHS)")
@@ -371,16 +430,22 @@ def main() -> None:
         progress.progress(40)
         st.session_state["assets"]["session_dir"] = str(session_dir)
         st.session_state["frame_idx"] = 0
+        st.session_state["frame_pos"] = 0.0
 
         if render_manim_mp4:
             if shutil.which("manim") is None:
                 st.warning("Manim not found on PATH, skipping MP4 rendering.")
             else:
-                scene_specs = [
-                    (PROJECT_ROOT / "manim_scenes" / "ensemble_scene.py", "EnsembleChaosScene"),
-                    (PROJECT_ROOT / "manim_scenes" / "phase_density_scene.py", "PhaseDensityAccumulationScene"),
-                    (PROJECT_ROOT / "manim_scenes" / "delta_threshold_scene.py", "DeltaAndThresholdScene"),
-                ]
+                if experimental_scenes:
+                    scene_specs = [
+                        (PROJECT_ROOT / "manim_scenes" / "ensemble_scene.py", "EnsembleChaosScene"),
+                        (PROJECT_ROOT / "manim_scenes" / "phase_density_scene.py", "PhaseDensityAccumulationScene"),
+                        (PROJECT_ROOT / "manim_scenes" / "delta_threshold_scene.py", "DeltaAndThresholdScene"),
+                    ]
+                else:
+                    scene_specs = [
+                        (PROJECT_ROOT / "manim_scenes" / "delta_threshold_scene.py", "DeltaAndThresholdScene"),
+                    ]
 
                 with st.spinner("Rendering Manim scenes to MP4 ... (this can take a while)"):
                     rendered = render_scenes(
@@ -395,56 +460,66 @@ def main() -> None:
         progress.progress(95)
         progress.progress(100)
 
-    st.markdown("## Scenes")
-    tabs = st.tabs(["Ensemble", "Phase density", "δ(t) + threshold"])
+    st.markdown("## δ(t) + threshold (primary)")
+    if experimental_scenes:
+        tabs = st.tabs(["δ(t) + threshold", "Ensemble", "Phase density"])
+    else:
+        tabs = st.tabs(["δ(t) + threshold"])
 
     videos = st.session_state["assets"].get("videos", {})
     desc = _scene_descriptions()
     session_dir_str = st.session_state["assets"].get("session_dir")
-    has_live = bool(session_dir_str)
+    use_live = bool(session_dir_str) and display_mode == "Live data"
     frame_idx = int(st.session_state.get("frame_idx", 0))
+    frame_pos = float(st.session_state.get("frame_pos", float(frame_idx)))
+
+    def _embed_if_available(key: str) -> None:
+        path = videos.get(key)
+        if path:
+            _embed_looping_video(path)
+        else:
+            st.info(
+                "No MP4 for this scene. Re-run **Render scenes** with **Also render MP4** enabled, "
+                "or use **Live data**."
+            )
 
     with tabs[0]:
-        st.markdown("### Ensemble motion")
-        st.caption(desc["Ensemble"])
-        if has_live:
-            session_dir = Path(session_dir_str)
-            _render_live_ensemble(session_dir / "ensemble_scene_data.npz", frame_idx)
-        elif videos:
-            _embed_looping_video(videos.get("EnsembleChaosScene", next(iter(videos.values()))))
-        else:
-            st.info("Click **Render scenes** to export data and visualize this tab.")
-
-    with tabs[1]:
-        st.markdown("### Accumulated phase-space density")
-        st.caption(desc["Phase density"])
-        if has_live:
-            session_dir = Path(session_dir_str)
-            _render_live_phase_density(session_dir, frame_idx)
-        elif videos:
-            _embed_looping_video(videos.get("PhaseDensityAccumulationScene", next(iter(videos.values()))))
-        else:
-            st.info("Click **Render scenes** to export data and visualize this tab.")
-
-    with tabs[2]:
-        st.markdown("### Separation and threshold")
+        st.markdown("### Separation δ(t) and logistic threshold")
         st.caption(desc["δ(t) + threshold"])
-        if has_live:
-            session_dir = Path(session_dir_str)
-            _render_live_delta_threshold(session_dir / "delta_threshold_data.npz", frame_idx)
-        elif videos:
-            _embed_looping_video(videos.get("DeltaAndThresholdScene", next(iter(videos.values()))))
+        with st.expander("What you are seeing"):
+            st.markdown(_what_you_are_seeing_delta())
+        if use_live and session_dir_str:
+            _render_live_delta_threshold(Path(session_dir_str) / "delta_threshold_data.npz", frame_idx)
+        elif display_mode == "Rendered MP4" and session_dir_str:
+            _embed_if_available("DeltaAndThresholdScene")
         else:
-            st.info("Click **Render scenes** to export data and visualize this tab.")
+            st.info("Click **Render scenes** to export data and visualize.")
 
-    if has_live and autoplay:
-        n_frames = 1
-        try:
-            data = np.load(Path(session_dir_str) / "ensemble_scene_data.npz")
-            n_frames = int(data["theta1"].shape[1])
-        except Exception:
-            n_frames = 1
-        st.session_state["frame_idx"] = (frame_idx + 1) % max(1, n_frames)
+    if experimental_scenes:
+        with tabs[1]:
+            st.markdown("### Ensemble motion (experimental)")
+            st.caption(desc["Ensemble"])
+            if use_live and session_dir_str:
+                _render_live_ensemble(Path(session_dir_str) / "ensemble_scene_data.npz", frame_pos)
+            elif display_mode == "Rendered MP4" and session_dir_str:
+                _embed_if_available("EnsembleChaosScene")
+            else:
+                st.info("Click **Render scenes** to export data and visualize this tab.")
+
+        with tabs[2]:
+            st.markdown("### Phase-space density (experimental)")
+            st.caption(desc["Phase density"])
+            if use_live and session_dir_str:
+                _render_live_phase_density(Path(session_dir_str), frame_idx)
+            elif display_mode == "Rendered MP4" and session_dir_str:
+                _embed_if_available("PhaseDensityAccumulationScene")
+            else:
+                st.info("Click **Render scenes** to export data and visualize this tab.")
+
+    if use_live and autoplay and session_dir_str:
+        # One shared clock; each scene uses modulo over its own frame count.
+        st.session_state["frame_idx"] = frame_idx + 1
+        st.session_state["frame_pos"] = frame_pos + 0.8
         time.sleep(1.0 / max(1, int(fps)))
         st.rerun()
 

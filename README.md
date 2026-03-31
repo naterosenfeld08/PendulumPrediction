@@ -1,6 +1,18 @@
 # Double Pendulum Chaos and Predictability
 
-This project studies a **classic chaotic system**: the planar double pendulum. The goal is to connect **physics** (how the arms actually move), **dynamical systems theory** (whether motion is predictable or sensitive to tiny changes), and **statistics** (what we can say with confidence when parameters vary). The code simulates many pendulums with different masses, lengths, and starting angles, measures how “chaotic” each run is, and builds models that relate initial conditions to **how unevenly kinetic energy is shared between the two bobs** over time.
+This project studies a **classic chaotic system**: the planar double pendulum. The **primary research thread** is: **when does the dynamics become predictably chaotic, and how confidently can we state a boundary in initial conditions?** The first-class diagnostic pair is **neighbor separation δ(t)** plus a **logistic threshold in θ₁,₀** at a configured confidence level—implemented end-to-end in simulation, statistics, and the optional Manim GUI.
+
+More broadly, the code connects **physics** (how the arms actually move), **dynamical systems theory** (whether motion is predictable or sensitive to tiny changes), and **statistics** (what we can say when parameters vary). It simulates many pendulums with different masses, lengths, and starting angles, measures how “chaotic” each run is, and builds models that relate initial conditions to **how unevenly kinetic energy is shared between the two bobs** over time.
+
+### Phased visualization roadmap
+
+| Phase | Focus | Status |
+|-------|--------|--------|
+| **1** | **Scene 3** — δ(t) + logistic threshold; live matplotlib default; versioned export manifest | **Primary** |
+| **2** | **Scenes 1–2** — ensemble motion and phase-space density (GUI: optional “experimental” tabs) | After Scene 3 quality gates |
+| **3** | Broader scene library / polish | Future |
+
+Quality gates before expanding Phase 2: Scene 3 runs smoothly in live mode without overlapping labels; axes and legend are unambiguous; optional MP4 export matches the live view.
 
 ---
 
@@ -160,21 +172,27 @@ pip install -r requirements-gui.txt
 
 ### Scenes
 
-Three scenes are provided:
+- **`DeltaAndThresholdScene` (primary)** — finite-time separation $\delta(t)$ together with the logistic chaos threshold in $\\theta_{1,0}$. This is the default GUI experience.
+- **`EnsembleChaosScene` (experimental)** — ensemble motion (default GUI ensemble size is 32).
+- **`PhaseDensityAccumulationScene` (experimental)** — accumulated phase-space density in $(\\theta_2,\\omega_2)$ over time.
 
-- `EnsembleChaosScene` — ensemble motion (default GUI ensemble size is 32).
-- `PhaseDensityAccumulationScene` — accumulated phase-space density in $(\\theta_2,\\omega_2)$ over time.
-- `DeltaAndThresholdScene` — finite-time separation $\delta(t)$ together with the logistic chaos threshold in $\\theta_{1,0}$.
+Enable the experimental tabs in the sidebar when you want to revisit ensemble and phase-density views.
 
 ### GUI
 
-Run the tabbed GUI:
+Run the GUI:
 
 ```bash
 streamlit run gui_app.py
 ```
 
-Click **Render scenes** to export trajectories/density frames and render MP4s. Each tab embeds the resulting animation with continuous-loop playback.
+**Default behavior:** **Live matplotlib** playback of the exported arrays (single shared frame clock; each tab loops with its own modulo). **Rendered MP4** is optional—opt in when you want shareable Manim files.
+
+Click **Render scenes** to export trajectories and density frames. Optional MP4 rendering is controlled separately; with experimental scenes off, only `DeltaAndThresholdScene` is rendered to disk when MP4 is enabled.
+
+### Export contract (`session_manifest.json`)
+
+Each session folder includes `session_manifest.json` with **`export_contract_version`** (currently `"1.0"`) and a list of required keys for the Scene 3 NPZ. Export runs **validation** before finishing so the GUI and Manim always see a consistent schema.
 
 Rendered videos and exported assets are written under `data/results/manim_sessions/<session_id>/`.
 
