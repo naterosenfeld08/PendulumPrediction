@@ -1,0 +1,17 @@
+---
+description: After bug fixes, commit and push without waiting to be asked
+alwaysApply: true
+---
+
+# Commit and push after fixes
+
+When you implement a **bug fix**, **regression fix**, or **small corrective change** (e.g. parse errors, crashes, wrong behavior, linter failures the user cares about):
+
+1. **Commit** only the files that belong to that fix (do not bundle unrelated local edits).
+2. **Push** to `origin` on the current branch (usually `main`).
+
+Do this **in the same turn** as the fix, without the user having to say “push” again.
+
+**Exceptions:** Skip commit/push if the user explicitly asked not to, or if there is no git repository / no remote. If unrelated changes would be mixed in, commit only the fix paths and mention what was left unstaged.
+
+Run `git` from this directory (`double_pendulum_sim/`).
