@@ -140,10 +140,10 @@ def _fig_logistic(threshold_info: dict[str, Any], config: dict[str, Any]) -> plt
     th_star = float(threshold_info["threshold_angle"])
 
     fig, ax = plt.subplots(figsize=(7.5, 4.2))
-    ax.plot(th, p, color="C1", lw=2, label=r"$P(\mathrm{chaotic}\mid \theta_{1,0})$")
+    ax.plot(th, p, color="C1", lw=2, label=r"$P(\mathrm{chaotic}\mid \theta_1)$")
     ax.axhline(p_target, color="0.5", ls="--", lw=1, label=f"target $1-\\alpha$ = {p_target:.3f}")
     ax.axvline(th_star, color="C3", ls="--", lw=1, label=fr"$\theta_1^*$ = {th_star:.3f} rad")
-    ax.set_xlabel(r"$\theta_{1,0}$ (rad)")
+    ax.set_xlabel(r"$\theta_1$ (rad)")
     ax.set_ylabel("probability")
     ax.legend()
     ax.grid(True, ls=":", alpha=0.5)
@@ -370,11 +370,11 @@ def _render_live_delta_threshold(npz_path: Path, frame_idx: int) -> int:
     ax1.set_ylabel(r"$\log_{10}\delta(t)$ (dimensionless)")
     ax1.legend(frameon=False, labelcolor="#dce5f0")
 
-    ax2.plot(th, p, color="#bf8cff", lw=2.4, label=r"$P(\mathrm{chaotic}\mid\theta_{1,0})$")
+    ax2.plot(th, p, color="#bf8cff", lw=2.4, label=r"$P(\mathrm{chaotic}\mid\theta_1)$")
     ax2.axhline(p_target, color="#adb5bd", ls="--", lw=1.4, label=f"target={p_target:.2f}")
     ax2.axvline(th_star, color="#ff4d4d", ls="--", lw=1.4, label=fr"$\theta_1^*={th_star:.3f}$ rad")
     ax2.scatter([th_star], [p_target], s=30, color="#ff4d4d")
-    ax2.set_xlabel(r"$\theta_{1,0}$ (rad)")
+    ax2.set_xlabel(r"$\theta_1$ (rad)")
     ax2.set_ylabel("P (dimensionless)")
     ax2.legend(frameon=False, labelcolor="#dce5f0")
 
