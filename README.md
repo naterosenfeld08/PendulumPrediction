@@ -191,15 +191,27 @@ pip install -r requirements-gui.txt
 
 ### GUI (interactive analysis)
 
+Install core dependencies **and** the GUI extra (Streamlit), then start the app:
+
 ```bash
+cd double_pendulum_sim
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -r requirements.txt -r requirements-gui.txt
 streamlit run gui_app.py
+```
+
+One-liner from the project directory (if dependencies are already installed):
+
+```bash
+python3 -m streamlit run gui_app.py
 ```
 
 The app lets you set **LHS parameter ranges**, **ensemble size** (default **48**), **confidence level** (for the logistic threshold), **Lyapunov** settings (ε, δ₀, horizon T), and **integration** span. Quick **presets** (*Mild* / *Mixed* / *Wild*) adjust θ₁, θ₂, and angular-velocity boxes; *Mixed* matches `config.yaml`. Click **Run ensemble & statistics** to:
 
 1. **Simulate** the full ensemble (same pipeline as `main.py` for that run).
 2. **Fit** GPR on energy-ratio variance and **logistic** P(chaotic|θ₁) at your confidence.
-3. **Visualize** (matplotlib, live): ensemble motion, **three phase portraits** (min / median / max λ in $(\\theta_1,\\omega_1)$), accumulated **(θ₂, ω₂)** density, and **δ(t) + logistic threshold** — all driven by the **same** DataFrame as the statistics.
+3. **Visualize** (matplotlib, live): ensemble motion, **three phase portraits** (min / max λ and median-θ₁ member; optional arm 1 or 2 plane), accumulated **(θ₂, ω₂)** density, and **δ(t) + logistic threshold** — all driven by the **same** DataFrame as the statistics.
 
 Sessions are written under `data/results/gui_sessions/<id>/` (NPZ + manifest, compatible with the Scene 3 contract).
 

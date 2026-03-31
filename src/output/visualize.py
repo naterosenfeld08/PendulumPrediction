@@ -113,7 +113,7 @@ def plot_phase_portraits_three_runs(
     fig, axes = plt.subplots(1, 3, figsize=(11, 3.8), sharex=False, sharey=False)
     titles = ["regular (low MLE)", "near threshold", "chaotic (high MLE)"]
     idxs = [i_reg, mid, i_cha]
-    for ax, title, ix in zip(axes, titles, idxs, strict=True):
+    for ax, title, ix in zip(axes, titles, idxs):
         y = _integrate_row(df.loc[ix], config)
         ax.plot(y[:, 0], y[:, 1], lw=0.8, color="C0")
         ax.set_xlabel(r"$\theta_1$")

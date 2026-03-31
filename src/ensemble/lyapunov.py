@@ -57,9 +57,12 @@ def compute_mle(
             f"t_lyapunov={t_horizon} must lie within integration span [{t[0]}, {t[-1]}]."
         )
 
+    if delta0 <= 0:
+        raise ValueError("lyapunov.delta0 must be > 0.")
+
     delta_end = float(np.interp(t_horizon, t, delta))
-    if delta_end <= 0 or delta0 <= 0:
-        raise ValueError("Non-positive separation; check lyapunov.delta0 and integration.")
+    # Numerical underflow can produce non-positive separation for very tiny delta0.
+    delta_end = max(delta_end, float(np.finfo(float).tiny))
 
     return (1.0 / t_horizon) * np.log(delta_end / delta0)
 

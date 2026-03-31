@@ -189,7 +189,7 @@ def _fig_phase_three(
     ]
 
     fig, axes = plt.subplots(1, 3, figsize=(12.5, 3.8), sharex=False, sharey=False)
-    for ax, (ix, title) in zip(axes, triple, strict=True):
+    for ax, (ix, title) in zip(axes, triple):
         row = df.iloc[ix]
         params = {
             "m1": float(row["m1"]),
@@ -314,7 +314,6 @@ def _render_live_phase_density(session_dir: Path, frame_idx: int) -> int:
         axes,
         [reg, cha],
         ["Regular subset", "Chaotic subset"],
-        strict=True,
     ):
         ax.imshow(img, origin="lower", aspect="auto", extent=extent, interpolation="nearest")
         ax.set_xlabel(r"$\theta_2$ (rad)")
@@ -419,7 +418,12 @@ def main() -> None:
         n_pend = st.slider("Number of pendulums", min_value=8, max_value=300, value=48, step=1)
         rng_seed = st.number_input("Random seed (LHS)", min_value=0, value=int(cfg0["ensemble"]["seed"]), step=1)
 
-        st.subheader("2. Confidence & Lyapunov")
+        st.subheader("2. Integration")
+        t_end = st.slider("Simulation end time (s)", 5.0, 40.0, float(cfg0["integration"]["t_span"][1]), 1.0)
+        n_steps = int(cfg0["integration"]["n_steps"])
+        st.caption(f"Fixed n_steps={n_steps} (energy drift check).")
+
+        st.subheader("3. Confidence & Lyapunov")
         conf_pct = st.selectbox("Confidence level (1−α)", options=[90, 95, 99], index=1)
         epsilon = st.number_input(
             "Chaos threshold ε (λ > ε)",
@@ -427,13 +431,15 @@ def main() -> None:
             format="%.4f",
             help="0 = any positive λ counts as chaotic (strict).",
         )
-        delta0 = st.number_input("Initial separation δ₀", value=float(cfg0["lyapunov"]["delta0"]), format="%.2e")
-        t_ly = st.slider("Lyapunov horizon T (s)", 5.0, float(cfg0["integration"]["t_span"][1]), float(cfg0["lyapunov"]["t_lyapunov"]), 1.0)
-
-        st.subheader("3. Integration")
-        t_end = st.slider("Simulation end time (s)", 5.0, 40.0, float(cfg0["integration"]["t_span"][1]), 1.0)
-        n_steps = int(cfg0["integration"]["n_steps"])
-        st.caption(f"Fixed n_steps={n_steps} (energy drift check).")
+        delta0 = st.number_input(
+            "Initial separation δ₀",
+            min_value=1e-14,
+            value=max(float(cfg0["lyapunov"]["delta0"]), 1e-14),
+            format="%.2e",
+            help="Must be positive.",
+        )
+        t_ly_default = min(float(cfg0["lyapunov"]["t_lyapunov"]), float(t_end))
+        t_ly = st.slider("Lyapunov horizon T (s)", 1.0, float(t_end), float(t_ly_default), 1.0)
 
         st.subheader("4. Parameter ranges (LHS)")
         preset = st.selectbox(
