@@ -20,6 +20,11 @@ from ensemble.ensemble import (  # noqa: E402
 )
 from output.report import write_report  # noqa: E402
 from output.visualize import generate_all_figures  # noqa: E402
+from stats.breakdown import (  # noqa: E402
+    align_timeseries_to_dataframe,
+    load_energy_ratio_timeseries,
+    run_prediction_breakdown_oof,
+)
 from stats.inverse import angle_from_variance_target  # noqa: E402
 from stats.stats import fit_model  # noqa: E402
 from stats.threshold import find_chaos_threshold  # noqa: E402
@@ -82,7 +87,22 @@ def main() -> None:
     target_var = float(config["inverse"]["target_variance"])
     inv_angle = angle_from_variance_target(model, target_var, config)
 
-    generate_all_figures(df, model, threshold_info, config)
+    breakdown_info = None
+    if (config.get("prediction") or {}).get("enabled", True):
+        try:
+            run_ids, t_samp, er = load_energy_ratio_timeseries()
+            er_aligned = align_timeseries_to_dataframe(df, run_ids, er)
+            breakdown_info = run_prediction_breakdown_oof(df, t_samp, er_aligned, config)
+        except (FileNotFoundError, ValueError) as exc:
+            print(f"Note: prediction breakdown skipped ({exc})")
+
+    generate_all_figures(
+        df,
+        model,
+        threshold_info,
+        config,
+        breakdown_info=breakdown_info,
+    )
     write_report(
         df,
         threshold_info,
@@ -90,6 +110,7 @@ def main() -> None:
         target_var,
         model,
         config,
+        breakdown_info=breakdown_info,
     )
 
 

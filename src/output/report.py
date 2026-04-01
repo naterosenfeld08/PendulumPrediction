@@ -34,6 +34,7 @@ def build_report_text(
     target_variance: float,
     model: Mapping[str, Any],
     config: Mapping[str, Any],
+    breakdown_info: Mapping[str, Any] | None = None,
 ) -> str:
     """Assemble multi-line report string."""
     n = len(df)
@@ -77,6 +78,23 @@ def build_report_text(
         f"  GPR upper-CI variance at implied max θ₁₀:        {u_at_inv:.6e}",
         "",
     ]
+    if breakdown_info is not None:
+        t_b = np.asarray(breakdown_info["t_breakdown"], dtype=np.float64)
+        t_s = np.asarray(breakdown_info["t_sample"], dtype=np.float64)
+        frac_hit = float(np.mean(np.isfinite(t_b))) if t_b.size else 0.0
+        med_t = float(np.nanmedian(t_b)) if np.any(np.isfinite(t_b)) else float("nan")
+        j_max = int(np.nanargmax(breakdown_info["fraction_outside_ci"]))
+        lines.extend(
+            [
+                "Prediction breakdown (OOF GPR: initial state → KE₂/KE_tot at time t):",
+                f"  Interval method:     {breakdown_info.get('interval_method', '?')}",
+                f"  CV folds:            {breakdown_info.get('cv_folds', '?')}",
+                f"  Share with breakdown: {frac_hit:.4f}  (finite t* before simulation end)",
+                f"  Median t* (if any):   {med_t:.4f} s",
+                f"  Largest frac. outside CI at t = {t_s[j_max]:.4f} s",
+                "",
+            ]
+        )
     return "\n".join(lines)
 
 
@@ -88,10 +106,18 @@ def write_report(
     model: Mapping[str, Any],
     config: Mapping[str, Any],
     path: Path | None = None,
+    *,
+    breakdown_info: Mapping[str, Any] | None = None,
 ) -> str:
     """Print report and write to ``data/results/summary_report.txt``."""
     text = build_report_text(
-        df, threshold_info, inverse_angle_rad, target_variance, model, config
+        df,
+        threshold_info,
+        inverse_angle_rad,
+        target_variance,
+        model,
+        config,
+        breakdown_info=breakdown_info,
     )
     print(text)
     out = path or (Path(__file__).resolve().parents[2] / "data" / "results" / "summary_report.txt")

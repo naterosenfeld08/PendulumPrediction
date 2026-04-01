@@ -42,3 +42,14 @@ lyapunov:
   epsilon: 0.0              # chaos threshold; 0.0 = theoretically strict
   delta0: 1.0e-10           # initial separation in state space
   t_lyapunov: 20            # time horizon for MLE computation
+
+# Prediction target: instantaneous KE₂/KE_tot at sampled times; sharpness = OOF interval width;
+# breakdown time = first t where truth falls outside OOF GPR interval (see stats.breakdown).
+prediction:
+  enabled: true
+  n_time_samples: 32        # indices along integration grid (inclusive endpoints)
+  cv_folds: 5
+  cv_random_state: 0
+  # analytic: fast GP predictive std; bootstrap: reuse stats.predict_with_ci (slow).
+  interval_method: analytic
+  bootstrap_iterations: 80  # used only if interval_method: bootstrap

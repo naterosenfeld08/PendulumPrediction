@@ -30,6 +30,7 @@ def fast_ensemble_config(base_config: dict) -> dict:
     c["integration"]["n_steps"] = 100
     c["integration"]["t_span"] = [0.0, 5.0]
     c["lyapunov"]["t_lyapunov"] = 4.0
+    c.setdefault("prediction", {})["n_time_samples"] = 8
     return c
 
 

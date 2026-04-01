@@ -2,9 +2,9 @@
 
 Simulation and statistics for a **planar double pendulum**: full nonlinear dynamics, Lyapunov-style separation diagnostics, ensemble sampling, and optional Manim/Streamlit visualization.
 
-**Central question:** *When does the motion behave like sensitive, hard-to-predict chaos, and how confidently can we state a boundary in initial conditions?* The main outputs are **neighbor separation δ(t)** and a **logistic threshold in θ₁,₀** at a configured confidence level—wired through `main.py`, `config.yaml`, and (optionally) the GUI.
+**Central questions:** (1) *When does the motion behave like sensitive, hard-to-predict chaos, and how confidently can we state a boundary in initial conditions?* — via **δ(t)**, finite-time **λ**, and a **logistic threshold in θ₁**. (2) *For predicting the instantaneous **energy share** \(KE_2/KE_\mathrm{tot}\) from the **initial state**, where does uncertainty **widen** (sharpness), and at what **time** does an honest out-of-fold interval first **fail** to cover the simulation?* — via **`prediction` + `stats.breakdown`** (see below).
 
-Broader pipeline: LHS ensembles, finite-time chaos labels, **GPR + bootstrap** on an energy-ratio variance proxy, **logistic regression** for a marginal θ₁ threshold, and an inverse-style solve. See **Limitations and scope** for what these choices do *not* claim.
+Broader pipeline: LHS ensembles, finite-time chaos labels, **GPR + bootstrap** on an energy-ratio variance proxy, **logistic regression** for a marginal θ₁ threshold, an inverse-style solve, and an optional **prediction-breakdown** pass over time-resolved energy share. See **Limitations and scope** for what these choices do *not* claim.
 
 **Contents:** [Motivation](#why-this-system-matters) · [Model & integration](#physical-model) · [Chaos labels](#chaos-diagnosis-separation-of-nearby-trajectories) · [Statistics](#statistical-layer-ensemble-design) · [Limitations](#limitations-and-scope) · [Layout & config](#project-layout) · [CLI & tests](#installation-and-tests) · [GUI / Manim](#manim-animations-and-gui-optional) · [Roadmap](#roadmap)
 
@@ -88,6 +88,17 @@ Beyond individual trajectories, the project is designed to:
 5. **Solve an inverse problem**: given a target variance cap at a confidence level, estimate a **maximum** initial angle consistent with that cap using the model’s **upper confidence bound** and a one-dimensional root finder.
 
 Together, these steps connect **nonlinear mechanics**, **sensitivity analysis**, and **uncertainty-aware prediction**.
+
+### Prediction breakdown (target, sharpness, breakdown time)
+
+This is the path aligned with treating the project as **prediction of a dynamical quantity from initial data**, with **sharpness** (interval width) and a **time of first statistical failure**:
+
+- **Target:** at sampled times \(t_k\) along the same integration grid, \(y_i(t_k)=\mathrm{KE}_2/\mathrm{KE}_\mathrm{tot}\) for ensemble member \(i\). Values are stored in `data/results/ensemble_energy_ratio_timeseries.npz` when `prediction.enabled` is true (see `config.yaml`).
+- **Predictor:** \(K\)-fold **out-of-fold** Gaussian process regression: at each \(t_k\), train on initial features (the same eight as elsewhere) → \(y(t_k)\). Inner fits use **fast** GP mode (`optimize_hyperparameters=False`) so scanning many times stays practical; set `prediction.interval_method: bootstrap` to use bootstrap intervals instead of the default **analytic** GP predictive band.
+- **Sharpness:** width of the OOF predictive interval vs. \(t\) (e.g. median width across held-out runs)—figure `prediction_breakdown_sharpness.png`.
+- **Breakdown time \(t_i^\*\):** first sampled \(t_k\) where the **simulated** \(y_i(t_k)\) lies **outside** the OOF interval for that run. Runs that never leave the band have \(t^\*=\) NaN. Cross-check vs. \(\lambda\) in `prediction_breakdown_vs_mle.png`.
+
+`main.py` runs this block after the ensemble when the NPZ exists; results are summarized in `summary_report.txt`.
 
 ---
 

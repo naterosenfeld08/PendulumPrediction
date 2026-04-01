@@ -23,41 +23,55 @@ FEATURE_ORDER: list[str] = [
 ]
 
 
-def fit_model(df: pd.DataFrame, config: Mapping[str, Any]) -> dict[str, Any]:
-    """Fit a GPR mapping initial conditions to ``energy_ratio_variance``.
+def fit_gp_regressor(
+    X: NDArray[np.floating],
+    y: NDArray[np.floating],
+    config: Mapping[str, Any],
+    *,
+    optimize_hyperparameters: bool = True,
+) -> dict[str, Any]:
+    """Fit GPR on feature matrix ``X`` and target vector ``y`` (same kernel as ``fit_model``).
 
-    For very large ensembles (e.g. N ≳ 1000), fitting and especially bootstrap
-    prediction intervals become expensive. Set ``statistics.gpr_fit_max_samples``
-    in ``config.yaml`` to cap the number of training rows (e.g. 500); predictions
-    can still be evaluated on the full table afterward.
+    If ``optimize_hyperparameters`` is False, kernel hyperparameters are not tuned (faster; used
+    for repeated fits e.g. cross-validated breakdown over many time slices).
     """
     st = config["statistics"]
-    X_full = df[FEATURE_ORDER].to_numpy(dtype=np.float64)
-    y_full = df["energy_ratio_variance"].to_numpy(dtype=np.float64)
-
+    X_arr = np.asarray(X, dtype=np.float64)
+    y_arr = np.asarray(y, dtype=np.float64)
+    n = X_arr.shape[0]
     max_samples = st.get("gpr_fit_max_samples")
     rng = np.random.default_rng(int(st.get("gpr_random_state", 0)))
 
-    if max_samples is not None and len(df) > int(max_samples):
-        idx = rng.choice(len(df), size=int(max_samples), replace=False)
-        X_train = X_full[idx]
-        y_train = y_full[idx]
+    if max_samples is not None and n > int(max_samples):
+        idx = rng.choice(n, size=int(max_samples), replace=False)
+        X_train = X_arr[idx]
+        y_train = y_arr[idx]
     else:
-        X_train = X_full.copy()
-        y_train = y_full.copy()
+        X_train = X_arr.copy()
+        y_train = y_arr.copy()
 
     kernel = C(1.0, (1e-3, 1e3)) * RBF(
         length_scale=np.ones(len(FEATURE_ORDER)),
         length_scale_bounds=(1e-2, 1e3),
     ) + WhiteKernel(noise_level=1e-6, noise_level_bounds=(1e-10, 1.0))
 
-    gp = GaussianProcessRegressor(
-        kernel=kernel,
-        n_restarts_optimizer=3,
-        alpha=1e-8,
-        normalize_y=True,
-        random_state=int(st.get("gpr_random_state", 0)),
-    )
+    if optimize_hyperparameters:
+        gp = GaussianProcessRegressor(
+            kernel=kernel,
+            n_restarts_optimizer=3,
+            alpha=1e-8,
+            normalize_y=True,
+            random_state=int(st.get("gpr_random_state", 0)),
+        )
+    else:
+        gp = GaussianProcessRegressor(
+            kernel=kernel,
+            optimizer=None,
+            n_restarts_optimizer=0,
+            alpha=1e-8,
+            normalize_y=True,
+            random_state=int(st.get("gpr_random_state", 0)),
+        )
     gp.fit(X_train, y_train)
 
     return {
@@ -66,6 +80,19 @@ def fit_model(df: pd.DataFrame, config: Mapping[str, Any]) -> dict[str, Any]:
         "y_train": y_train,
         "feature_order": FEATURE_ORDER,
     }
+
+
+def fit_model(df: pd.DataFrame, config: Mapping[str, Any]) -> dict[str, Any]:
+    """Fit a GPR mapping initial conditions to ``energy_ratio_variance``.
+
+    For very large ensembles (e.g. N ≳ 1000), fitting and especially bootstrap
+    prediction intervals become expensive. Set ``statistics.gpr_fit_max_samples``
+    in ``config.yaml`` to cap the number of training rows (e.g. 500); predictions
+    can still be evaluated on the full table afterward.
+    """
+    X_full = df[FEATURE_ORDER].to_numpy(dtype=np.float64)
+    y_full = df["energy_ratio_variance"].to_numpy(dtype=np.float64)
+    return fit_gp_regressor(X_full, y_full, config)
 
 
 def predict_with_ci(

@@ -36,12 +36,37 @@ def ensemble_checkpoint_path() -> Path:
     return _results_dir() / "ensemble_checkpoint.parquet"
 
 
+def ensemble_energy_ratio_timeseries_path() -> Path:
+    """NPZ with downsampled ``KE₂/KE_tot`` time series per run (see ``prediction`` config)."""
+    return _results_dir() / "ensemble_energy_ratio_timeseries.npz"
+
+
+def _time_sample_indices(n_steps: int, n_samples: int) -> np.ndarray:
+    """``n_samples`` indices in ``[0, n_steps]`` along the integration grid."""
+    k = max(2, int(n_samples))
+    return np.linspace(0, int(n_steps), k, dtype=int)
+
+
 def _simulate_one_slot(
     run_id: int,
     params_candidates: list[dict[str, float]],
     config: Mapping[str, Any],
-) -> dict[str, Any] | None:
-    """Simulate one slot, resampling candidate params until energy check passes."""
+) -> tuple[dict[str, Any] | None, np.ndarray | None]:
+    """Simulate one slot, resampling candidate params until energy check passes.
+
+    Returns
+    -------
+    row, energy_ratio_samples
+        ``energy_ratio_samples`` is shape ``(K,)`` at indices from ``prediction.n_time_samples``
+        (aligned with ``t_sample`` written to the NPZ). ``None`` if the slot failed.
+    """
+    pred_cfg = config.get("prediction") or {}
+    save_ts = bool(pred_cfg.get("enabled", True))
+    n_ts = int(pred_cfg.get("n_time_samples", 32))
+    integ = config["integration"]
+    n_steps = int(integ["n_steps"])
+    ts_idx = _time_sample_indices(n_steps, n_ts) if save_ts else None
+
     last_exc: Exception | None = None
     for params in params_candidates:
         try:
@@ -69,7 +94,7 @@ def _simulate_one_slot(
             eps = float(config["lyapunov"]["epsilon"])
             chaotic = bool(mle > eps)
 
-            return {
+            row = {
                 "run_id": run_id,
                 "m1": params["m1"],
                 "m2": params["m2"],
@@ -84,6 +109,10 @@ def _simulate_one_slot(
                 "energy_ratio_variance": var_er,
                 "is_chaotic": chaotic,
             }
+            er_samp = None
+            if save_ts and ts_idx is not None:
+                er_samp = np.asarray(er[ts_idx], dtype=np.float64)
+            return row, er_samp
         except (AssertionError, RuntimeError, ValueError) as exc:
             # Known/expected numerical issues:
             # - energy conservation drift (AssertionError)
@@ -95,7 +124,7 @@ def _simulate_one_slot(
     # Slot failed all attempts; let the caller decide whether to abort.
     if last_exc is None:
         last_exc = RuntimeError("Unknown slot failure.")
-    return None
+    return None, None
 
 
 def _checkpoint_write(rows: list[dict[str, Any]]) -> None:
@@ -138,6 +167,7 @@ def run_ensemble(
         raise ValueError("ensemble.min_valid_fraction must be in (0, 1].")
 
     rows_accum: list[dict[str, Any]] = []
+    er_by_run: dict[int, np.ndarray] = {}
 
     for batch_start in range(0, n, checkpoint_every):
         batch_end = min(batch_start + checkpoint_every, n)
@@ -147,10 +177,14 @@ def run_ensemble(
             end = (i + 1) * max_energy_attempts_per_slot
             batch_slots.append((i, params_list[start:end]))
 
-        batch_rows = Parallel(n_jobs=n_jobs)(
+        batch_out = Parallel(n_jobs=n_jobs)(
             delayed(_simulate_one_slot)(i, cands, config) for i, cands in batch_slots
         )
-        rows_accum.extend([r for r in batch_rows if r is not None])
+        for row, er_samp in batch_out:
+            if row is not None:
+                rows_accum.append(row)
+                if er_samp is not None:
+                    er_by_run[int(row["run_id"])] = np.asarray(er_samp, dtype=np.float64)
         _checkpoint_write(rows_accum)
 
     df = pd.DataFrame(rows_accum)
@@ -159,7 +193,27 @@ def run_ensemble(
             "Too many ensemble slots failed validation (energy conservation / integration). "
             f"Got {len(df)} valid rows out of {n}."
         )
+    df = df.sort_values("run_id").reset_index(drop=True)
     df.to_parquet(ensemble_results_path(config), index=False)
+
+    pred_cfg = config.get("prediction") or {}
+    if bool(pred_cfg.get("enabled", True)) and er_by_run:
+        n_steps = int(config["integration"]["n_steps"])
+        k_ts = int(pred_cfg.get("n_time_samples", 32))
+        ts_idx = _time_sample_indices(n_steps, k_ts)
+        t_span = tuple(float(x) for x in config["integration"]["t_span"])
+        t_full = np.linspace(t_span[0], t_span[1], n_steps + 1, dtype=np.float64)
+        t_sample = t_full[ts_idx]
+        run_ids = df["run_id"].to_numpy(dtype=np.int64)
+        er_stack = np.stack([er_by_run[int(r)] for r in run_ids], axis=0)
+        np.savez_compressed(
+            ensemble_energy_ratio_timeseries_path(),
+            run_id=run_ids,
+            t_sample=t_sample,
+            time_index=ts_idx,
+            energy_ratio=er_stack,
+        )
+
     return df
 
 

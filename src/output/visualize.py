@@ -157,14 +157,88 @@ def plot_logistic_threshold(
     plt.close(fig)
 
 
+def plot_prediction_breakdown(
+    breakdown_info: Mapping[str, Any],
+    out_dir: Path,
+) -> None:
+    """Sharpness (OOF interval width) and miscalibration proxy vs time."""
+    t = np.asarray(breakdown_info["t_sample"], dtype=np.float64)
+    w = np.asarray(breakdown_info["median_interval_width"], dtype=np.float64)
+    f_out = np.asarray(breakdown_info["fraction_outside_ci"], dtype=np.float64)
+
+    fig, ax1 = plt.subplots(figsize=(8.2, 4.6))
+    ax1.plot(t, w, color="C0", lw=2.2, label="median OOF CI width")
+    ax1.fill_between(t, 0.0, w, color="C0", alpha=0.12)
+    ax1.set_xlabel("t (s)")
+    ax1.set_ylabel(r"width of $KE_2/KE_{\mathrm{tot}}$ interval")
+    ax1.grid(True, ls=":", alpha=0.5)
+
+    ax2 = ax1.twinx()
+    ax2.plot(t, f_out, color="C3", lw=2.0, ls="--", label="fraction outside OOF CI")
+    ax2.set_ylabel("fraction outside interval")
+    mx = float(np.nanmax(f_out))
+    if not np.isfinite(mx):
+        mx = 0.0
+    ax2.set_ylim(0.0, max(0.05, mx * 1.15))
+
+    h1, l1 = ax1.get_legend_handles_labels()
+    h2, l2 = ax2.get_legend_handles_labels()
+    ax1.legend(h1 + h2, l1 + l2, loc="upper left", framealpha=0.92)
+    fig.suptitle(
+        "Prediction sharpness vs time (OOF GPR: initial state → instantaneous energy share)",
+        fontsize=11,
+        y=1.02,
+    )
+    fig.tight_layout()
+    fig.savefig(out_dir / "prediction_breakdown_sharpness.png", dpi=150)
+    plt.close(fig)
+
+
+def plot_breakdown_time_vs_mle(
+    df: pd.DataFrame,
+    breakdown_info: Mapping[str, Any],
+    out_dir: Path,
+    *,
+    t_end: float,
+) -> None:
+    """First time truth leaves OOF interval vs finite-time MLE proxy."""
+    t_b = np.asarray(breakdown_info["t_breakdown"], dtype=np.float64)
+    mle = df["mle"].to_numpy(dtype=np.float64)
+    mask = np.isfinite(t_b)
+
+    fig, ax = plt.subplots(figsize=(7.2, 4.5))
+    if np.any(mask):
+        ax.scatter(mle[mask], t_b[mask], s=22, alpha=0.55, c="C2", edgecolors="none")
+    n_no = int(np.sum(~np.isfinite(t_b)))
+    if n_no:
+        ax.text(
+            0.02,
+            0.98,
+            f"{n_no} run(s): no breakdown before t={t_end:.1f} s",
+            transform=ax.transAxes,
+            va="top",
+            ha="left",
+            fontsize=9,
+            color="0.35",
+        )
+    ax.set_xlabel("MLE estimate")
+    ax.set_ylabel(r"breakdown time $t^*$ (s)")
+    ax.grid(True, ls=":", alpha=0.5)
+    fig.tight_layout()
+    fig.savefig(out_dir / "prediction_breakdown_vs_mle.png", dpi=150)
+    plt.close(fig)
+
+
 def generate_all_figures(
     df: pd.DataFrame,
     model: Mapping[str, Any],
     threshold_info: Mapping[str, Any],
     config: Mapping[str, Any],
     out_dir: Path | None = None,
+    *,
+    breakdown_info: Mapping[str, Any] | None = None,
 ) -> None:
-    """Produce all five figures specified for the project."""
+    """Produce standard figures; optional breakdown diagnostics."""
     out = out_dir or _results_dir(config)
     plot_theta1_vs_mle(df, out)
     plot_theta1_vs_variance_with_ci(df, model, config, out)
@@ -176,3 +250,7 @@ def generate_all_figures(
         float(threshold_info["threshold_angle"]),
         out,
     )
+    if breakdown_info is not None:
+        t_end = float(config["integration"]["t_span"][1])
+        plot_prediction_breakdown(breakdown_info, out)
+        plot_breakdown_time_vs_mle(df, breakdown_info, out, t_end=t_end)
