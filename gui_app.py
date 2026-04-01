@@ -141,9 +141,21 @@ def _fig_logistic(threshold_info: dict[str, Any], config: dict[str, Any]) -> plt
 
     fig, ax = plt.subplots(figsize=(7.5, 4.2))
     ax.plot(th, p, color="C1", lw=2, label=r"$P(\mathrm{chaotic}\mid \theta_1)$")
-    ax.axhline(p_target, color="0.5", ls="--", lw=1, label=f"target $1-\\alpha$ = {p_target:.3f}")
-    ax.axvline(th_star, color="C3", ls="--", lw=1, label=fr"$\theta_1^*$ = {th_star:.3f} rad")
-    ax.set_xlabel(r"$\theta_1$ (rad)")
+    ax.axhline(
+        p_target,
+        color="0.5",
+        ls="--",
+        lw=1,
+        label=rf"$1-\alpha = {p_target:.3f}$",
+    )
+    ax.axvline(
+        th_star,
+        color="C3",
+        ls="--",
+        lw=1,
+        label=rf"$\theta_1^* = {th_star:.3f}\ \mathrm{{rad}}$",
+    )
+    ax.set_xlabel(r"$\theta_1\ \mathrm{(rad)}$")
     ax.set_ylabel("probability")
     ax.legend()
     ax.grid(True, ls=":", alpha=0.5)
@@ -175,11 +187,11 @@ def _fig_phase_three(
 
     if plane == "arm2":
         i_x, i_y = 2, 3
-        xlab, ylab = r"$\theta_2$ (rad)", r"$\omega_2$ (rad/s)"
+        xlab, ylab = r"$\theta_2\ \mathrm{(rad)}$", r"$\omega_2\ \mathrm{(rad/s)}$"
         plane_name = r"$(\theta_2,\,\omega_2)$"
     else:
         i_x, i_y = 0, 1
-        xlab, ylab = r"$\theta_1$ (rad)", r"$\omega_1$ (rad/s)"
+        xlab, ylab = r"$\theta_1\ \mathrm{(rad)}$", r"$\omega_1\ \mathrm{(rad/s)}$"
         plane_name = r"$(\theta_1,\,\omega_1)$"
 
     triple = [
@@ -316,8 +328,8 @@ def _render_live_phase_density(session_dir: Path, frame_idx: int) -> int:
         ["Regular subset", "Chaotic subset"],
     ):
         ax.imshow(img, origin="lower", aspect="auto", extent=extent, interpolation="nearest")
-        ax.set_xlabel(r"$\theta_2$ (rad)")
-        ax.set_ylabel(r"$\omega_2$ (rad/s)")
+        ax.set_xlabel(r"$\theta_2\ \mathrm{(rad)}$")
+        ax.set_ylabel(r"$\omega_2\ \mathrm{(rad/s)}$")
         ax.set_title(title, color="#dce5f0")
         ax.tick_params(colors="#dce5f0")
         for sp in ax.spines.values():
@@ -367,14 +379,20 @@ def _render_live_delta_threshold(npz_path: Path, frame_idx: int) -> int:
     yk = np.log10(max(float(dc[k]), 1e-30))
     ax1.scatter([t[k]], [yk], s=26, color="#ff8f3f", zorder=3)
     ax1.set_xlabel("t (s)")
-    ax1.set_ylabel(r"$\log_{10}\delta(t)$ (dimensionless)")
+    ax1.set_ylabel(r"$\log_{10}\delta(t)\ \mathrm{(dimensionless)}$")
     ax1.legend(frameon=False, labelcolor="#dce5f0")
 
     ax2.plot(th, p, color="#bf8cff", lw=2.4, label=r"$P(\mathrm{chaotic}\mid\theta_1)$")
     ax2.axhline(p_target, color="#adb5bd", ls="--", lw=1.4, label=f"target={p_target:.2f}")
-    ax2.axvline(th_star, color="#ff4d4d", ls="--", lw=1.4, label=fr"$\theta_1^*={th_star:.3f}$ rad")
+    ax2.axvline(
+        th_star,
+        color="#ff4d4d",
+        ls="--",
+        lw=1.4,
+        label=rf"$\theta_1^* = {th_star:.3f}\ \mathrm{{rad}}$",
+    )
     ax2.scatter([th_star], [p_target], s=30, color="#ff4d4d")
-    ax2.set_xlabel(r"$\theta_1$ (rad)")
+    ax2.set_xlabel(r"$\theta_1\ \mathrm{(rad)}$")
     ax2.set_ylabel("P (dimensionless)")
     ax2.legend(frameon=False, labelcolor="#dce5f0")
 
