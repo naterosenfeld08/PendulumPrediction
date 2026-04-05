@@ -40,7 +40,7 @@ def load_config(path: Path) -> dict:
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="Double pendulum ensemble: simulate, model variance, chaos threshold, plots."
+        description="Double pendulum ensemble: simulate, variance GPR, chaos threshold, prediction breakdown, plots."
     )
     p.add_argument(
         "--config",

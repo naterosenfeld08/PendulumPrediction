@@ -47,7 +47,7 @@ def main() -> None:
         s=12,
         alpha=0.65,
     )
-    ax.set_xlabel(r"$\theta_{1,0}$ (rad)")
+    ax.set_xlabel(r"$\theta_1\ \mathrm{(rad)}$")
     ax.set_ylabel("λ")
     ax.set_title(r"Initial $\theta_1$ vs λ (color: is_chaotic)")
     cbar = fig.colorbar(sc, ax=ax)

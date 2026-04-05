@@ -127,7 +127,7 @@ def run_prediction_breakdown_oof(
     valid = np.isfinite(y) & np.isfinite(oof_lo) & np.isfinite(oof_hi)
     outside = valid & ((y < oof_lo) | (y > oof_hi))
     denom = np.maximum(np.sum(valid, axis=0), 1)
-    frac_outside = np.sum(outside & valid, axis=0).astype(np.float64) / denom.astype(np.float64)
+    frac_outside = np.sum(outside, axis=0).astype(np.float64) / denom.astype(np.float64)
 
     median_width = np.nanmedian(oof_width, axis=0)
     mean_width = np.nanmean(oof_width, axis=0)

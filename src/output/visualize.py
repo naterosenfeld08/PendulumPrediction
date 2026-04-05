@@ -28,7 +28,7 @@ def plot_theta1_vs_mle(df: pd.DataFrame, out_dir: Path) -> None:
     cha = df.loc[df["is_chaotic"]]
     ax.scatter(reg["theta1"], reg["mle"], c="C0", s=12, alpha=0.65, label="regular")
     ax.scatter(cha["theta1"], cha["mle"], c="C3", s=12, alpha=0.65, label="chaotic")
-    ax.set_xlabel(r"$\theta_{1,0}$ (rad)")
+    ax.set_xlabel(r"$\theta_1\ \mathrm{(rad)}$")
     ax.set_ylabel("MLE estimate")
     ax.legend()
     ax.grid(True, ls=":", alpha=0.5)
@@ -59,8 +59,8 @@ def plot_theta1_vs_variance_with_ci(
     ax.scatter(df["theta1"], df["energy_ratio_variance"], s=14, alpha=0.35, c="0.4")
     ax.plot(th, mean_p, color="C0", lw=2, label="GPR bootstrap mean")
     ax.fill_between(th, lo, hi, color="C0", alpha=0.2, label="Bootstrap CI")
-    ax.set_xlabel(r"$\theta_{1,0}$ (rad)")
-    ax.set_ylabel(r"var($\mathrm{KE}_2/\mathrm{KE}_{\mathrm{tot}}$)")
+    ax.set_xlabel(r"$\theta_1\ \mathrm{(rad)}$")
+    ax.set_ylabel(r"$\mathrm{var}(\mathrm{KE}_2/\mathrm{KE}_{\mathrm{tot}})$")
     ax.legend()
     ax.grid(True, ls=":", alpha=0.5)
     fig.tight_layout()
@@ -145,10 +145,16 @@ def plot_logistic_threshold(
     p_target = float(threshold_info["p_target"])
 
     fig, ax = plt.subplots(figsize=(7, 4.5))
-    ax.plot(th, p, color="C1", lw=2, label=r"$P(\mathrm{chaotic}\mid \theta_{1,0})$")
-    ax.axhline(p_target, color="0.5", ls="--", lw=1, label=f"target = $1-\\alpha$ = {p_target:.3f}")
+    ax.plot(th, p, color="C1", lw=2, label=r"$P(\mathrm{chaotic}\mid \theta_1)$")
+    ax.axhline(
+        p_target,
+        color="0.5",
+        ls="--",
+        lw=1,
+        label=rf"$1-\alpha = {p_target:.3f}$",
+    )
     ax.axvline(threshold_angle, color="C3", ls="--", lw=1, label="threshold angle")
-    ax.set_xlabel(r"$\theta_{1,0}$ (rad)")
+    ax.set_xlabel(r"$\theta_1\ \mathrm{(rad)}$")
     ax.set_ylabel("probability")
     ax.legend()
     ax.grid(True, ls=":", alpha=0.5)
