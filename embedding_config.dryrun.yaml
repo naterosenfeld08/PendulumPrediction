@@ -1,0 +1,14 @@
+dataset:
+  trajectories_dir: data/trajectories_dryrun
+  artifacts_dir: data/embedding_artifacts_dryrun
+  n_per_system: 6
+  duration_s: 8.0
+  n_steps: 240
+  seed: 7
+  train_frac: 0.70
+  val_frac: 0.15
+
+task:
+  window_size: 24
+  horizons: [1, 3, 6]
+  stride: 3

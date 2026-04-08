@@ -1,0 +1,14 @@
+dataset:
+  trajectories_dir: data/trajectories
+  artifacts_dir: data/embedding_artifacts
+  n_per_system: 80
+  duration_s: 30.0
+  n_steps: 1200
+  seed: 42
+  train_frac: 0.70
+  val_frac: 0.15
+
+task:
+  window_size: 64
+  horizons: [1, 5, 10, 20]
+  stride: 4

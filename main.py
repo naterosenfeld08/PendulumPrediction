@@ -1,4 +1,4 @@
-"""Orchestrate ensemble simulation, statistics, figures, and summary report."""
+"""Experiment-first CLI for trajectory-embedding pendulum forecasting."""
 
 from __future__ import annotations
 
@@ -13,105 +13,73 @@ _SRC = _ROOT / "src"
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
-from ensemble.ensemble import (  # noqa: E402
-    ensemble_results_path,
-    load_ensemble_results,
-    run_ensemble,
-)
-from output.report import write_report  # noqa: E402
-from output.visualize import generate_all_figures  # noqa: E402
-from stats.breakdown import (  # noqa: E402
-    align_timeseries_to_dataframe,
-    load_energy_ratio_timeseries,
-    run_prediction_breakdown_oof,
-)
-from stats.inverse import angle_from_variance_target  # noqa: E402
-from stats.stats import fit_model  # noqa: E402
-from stats.threshold import find_chaos_threshold  # noqa: E402
+from experiments.runner import ExperimentConfig, generate_data, train_and_evaluate  # noqa: E402
 
 
-def load_config(path: Path) -> dict:
+def _load_yaml(path: Path) -> dict:
     with path.open(encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
     if not isinstance(cfg, dict):
-        raise ValueError("Config root must be a mapping.")
+        raise ValueError(f"Expected mapping in config: {path}")
     return cfg
 
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="Double pendulum ensemble: simulate, variance GPR, chaos threshold, prediction breakdown, plots."
+        description=(
+            "Embedding-first pendulum workflow: generate trajectories, "
+            "train baselines, and evaluate multi-horizon energy forecasts."
+        )
     )
     p.add_argument(
         "--config",
         type=Path,
         default=_ROOT / "config.yaml",
-        help="Path to YAML configuration.",
+        help="Base physics config path used by the double pendulum adapter.",
     )
     p.add_argument(
-        "--n",
-        type=int,
-        default=None,
-        choices=(500, 1000, 1500),
-        help="Override ensemble.n_pendulums (must be 500, 1000, or 1500).",
+        "--embedding-config",
+        type=Path,
+        default=_ROOT / "embedding_config.yaml",
+        help="Embedding-first experiment config path.",
     )
-    p.add_argument(
-        "--force",
-        action="store_true",
-        help="Re-run ensemble even if results Parquet already exists.",
-    )
+    sub = p.add_subparsers(dest="command", required=True)
+    sub.add_parser("generate", help="Generate trajectory dataset for all systems.")
+    sub.add_parser("train", help="Train and evaluate forecasting baselines.")
+    sub.add_parser("run-all", help="Generate data then train/evaluate.")
     return p.parse_args()
+
+
+def _build_experiment_config(cfg: dict) -> ExperimentConfig:
+    d = cfg.get("dataset", {})
+    t = cfg.get("task", {})
+    return ExperimentConfig(
+        trajectories_dir=(_ROOT / d.get("trajectories_dir", "data/trajectories")).resolve(),
+        artifacts_dir=(_ROOT / d.get("artifacts_dir", "data/embedding_artifacts")).resolve(),
+        n_per_system=int(d.get("n_per_system", 80)),
+        duration_s=float(d.get("duration_s", 30.0)),
+        n_steps=int(d.get("n_steps", 1200)),
+        seed=int(d.get("seed", 42)),
+        train_frac=float(d.get("train_frac", 0.7)),
+        val_frac=float(d.get("val_frac", 0.15)),
+        window_size=int(t.get("window_size", 64)),
+        horizons=tuple(int(h) for h in t.get("horizons", [1, 5, 10, 20])),
+        stride=int(t.get("stride", 4)),
+    )
 
 
 def main() -> None:
     args = parse_args()
-    config_path = args.config.resolve()
-    if not config_path.is_file():
-        raise FileNotFoundError(f"Config not found: {config_path}")
+    base_config = _load_yaml(args.config.resolve())
+    emb_cfg = _load_yaml(args.embedding_config.resolve())
+    exp_cfg = _build_experiment_config(emb_cfg)
 
-    config = load_config(config_path)
-    if args.n is not None:
-        config["ensemble"]["n_pendulums"] = args.n
-
-    out_path = ensemble_results_path(config)
-    if args.force or not out_path.is_file():
-        import numpy as np
-
-        rng = np.random.default_rng(int(config["ensemble"]["seed"]))
-        df = run_ensemble(config, rng=rng)
-    else:
-        df = load_ensemble_results(out_path)
-
-    model = fit_model(df, config)
-    threshold_info = find_chaos_threshold(df, config)
-    target_var = float(config["inverse"]["target_variance"])
-    inv_angle = angle_from_variance_target(model, target_var, config)
-
-    breakdown_info = None
-    if (config.get("prediction") or {}).get("enabled", True):
-        try:
-            run_ids, t_samp, er = load_energy_ratio_timeseries()
-            er_aligned = align_timeseries_to_dataframe(df, run_ids, er)
-            breakdown_info = run_prediction_breakdown_oof(df, t_samp, er_aligned, config)
-        except (FileNotFoundError, ValueError) as exc:
-            print(f"Note: prediction breakdown skipped ({exc})")
-
-    generate_all_figures(
-        df,
-        model,
-        threshold_info,
-        config,
-        breakdown_info=breakdown_info,
-    )
-    write_report(
-        df,
-        threshold_info,
-        inv_angle,
-        target_var,
-        model,
-        config,
-        breakdown_info=breakdown_info,
-    )
+    if args.command in {"generate", "run-all"}:
+        split_sizes = generate_data(base_config=base_config, cfg=exp_cfg)
+        print("Generated trajectories:", split_sizes)
+    if args.command in {"train", "run-all"}:
+        metrics = train_and_evaluate(cfg=exp_cfg)
+        print("Saved metrics for models:", ", ".join(sorted(metrics.keys())))
 
 
 if __name__ == "__main__":
