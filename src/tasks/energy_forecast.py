@@ -104,4 +104,8 @@ def build_supervised_dataset(
     X = np.vstack(features).astype(np.float64)
     y = np.stack(targets, axis=0).astype(np.float64)
     last_energy = np.stack(last_energy_rows, axis=0).astype(np.float64)
+    X = np.nan_to_num(X, nan=0.0, posinf=1e6, neginf=-1e6)
+    X = np.clip(X, -1e6, 1e6)
+    y = np.nan_to_num(y, nan=0.0, posinf=1e6, neginf=-1e6)
+    last_energy = np.nan_to_num(last_energy, nan=0.0, posinf=1e6, neginf=-1e6)
     return SupervisedDataset(X=X, y=y, last_energy=last_energy, trajectory_ids=traj_ids)

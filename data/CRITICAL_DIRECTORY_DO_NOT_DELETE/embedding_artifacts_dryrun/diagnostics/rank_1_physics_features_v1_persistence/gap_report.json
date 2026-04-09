@@ -1,0 +1,11 @@
+{
+  "train_rmse_mean": 3.492784580002182,
+  "val_rmse_mean": 5.325818372035455,
+  "test_rmse_mean": 3.0290155962523833,
+  "train_val_gap": 1.8330337920332727,
+  "val_test_gap": -2.2968027757830716,
+  "flags": {
+    "train_val_overfit": true,
+    "val_test_drop": false
+  }
+}

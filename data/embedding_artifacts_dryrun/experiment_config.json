@@ -1,0 +1,12 @@
+{
+  "n_per_system": 6,
+  "duration_s": 8.0,
+  "n_steps": 240,
+  "window_size": 24,
+  "horizons": [
+    1,
+    3,
+    6
+  ],
+  "stride": 3
+}

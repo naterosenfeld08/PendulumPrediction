@@ -1,0 +1,20 @@
+{
+  "splits": {
+    "train": 8,
+    "val": 2,
+    "test": 2
+  },
+  "overlap_count": 0,
+  "system_split_counts": {
+    "double_pendulum": {
+      "train": 4,
+      "val": 2,
+      "test": 0
+    },
+    "driven_damped_single": {
+      "train": 4,
+      "val": 0,
+      "test": 2
+    }
+  }
+}

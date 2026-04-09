@@ -1,0 +1,668 @@
+{
+  "n_total": 160,
+  "splits": {
+    "train": 112,
+    "val": 32,
+    "test": 16
+  },
+  "records": [
+    {
+      "trajectory_id": "double_pendulum_00000",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00001",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00002",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00003",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00004",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00005",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00006",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00007",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00008",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00009",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00010",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00011",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00012",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00013",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00014",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00015",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00016",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00017",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00018",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00019",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00020",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00021",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00022",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00023",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00024",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00025",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00026",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00027",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00028",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00029",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00030",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00031",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00032",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00033",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00034",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00035",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00036",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00037",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00038",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00039",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00040",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00041",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00042",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00043",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00044",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00045",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00046",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00047",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00048",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00049",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00050",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00051",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00052",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00053",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00054",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00055",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00056",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00057",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00058",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00059",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00060",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00061",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00062",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00063",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00064",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00065",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00066",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00067",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00068",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00069",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00070",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00071",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00072",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00073",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00074",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00075",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00076",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00077",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00078",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00079",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00000",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00001",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00002",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00003",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00004",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00005",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00006",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00007",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00008",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00009",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00010",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00011",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00012",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00013",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00014",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00015",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00016",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00017",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00018",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00019",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00020",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00021",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00022",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00023",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00024",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00025",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00026",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00027",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00028",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00029",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00030",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00031",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00032",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00033",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00034",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00035",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00036",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00037",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00038",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00039",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00040",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00041",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00042",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00043",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00044",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00045",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00046",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00047",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00048",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00049",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00050",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00051",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00052",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00053",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00054",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00055",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00056",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00057",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00058",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00059",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00060",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00061",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00062",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00063",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00064",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00065",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00066",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00067",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00068",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00069",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00070",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00071",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00072",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00073",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00074",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00075",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00076",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00077",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00078",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00079",
+      "system_name": "driven_damped_single"
+    }
+  ],
+  "split_integrity": {
+    "train_frac": 0.7,
+    "val_frac": 0.2,
+    "test_frac": 0.10000000000000003,
+    "overlap_count": 0,
+    "system_split_counts": {
+      "double_pendulum": {
+        "train": 56,
+        "val": 17,
+        "test": 7
+      },
+      "driven_damped_single": {
+        "train": 56,
+        "val": 15,
+        "test": 9
+      }
+    }
+  }
+}

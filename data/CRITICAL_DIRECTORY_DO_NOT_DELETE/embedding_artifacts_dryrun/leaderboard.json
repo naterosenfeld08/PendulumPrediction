@@ -1,0 +1,238 @@
+[
+  {
+    "embedding": "physics_features_v1",
+    "model": "persistence",
+    "best_objective": 3.4149744053307436,
+    "seed": 3,
+    "hyperparams": {}
+  },
+  {
+    "embedding": "raw_window",
+    "model": "persistence",
+    "best_objective": 3.4149744053307436,
+    "seed": 3,
+    "hyperparams": {}
+  },
+  {
+    "embedding": "fft_features",
+    "model": "persistence",
+    "best_objective": 3.4149744053307436,
+    "seed": 3,
+    "hyperparams": {}
+  },
+  {
+    "embedding": "hybrid_physics_fft",
+    "model": "persistence",
+    "best_objective": 3.4149744053307436,
+    "seed": 3,
+    "hyperparams": {}
+  },
+  {
+    "embedding": "hybrid_physics_fft",
+    "model": "ridge",
+    "best_objective": 4.135287716186988,
+    "seed": 5,
+    "hyperparams": {
+      "alpha": 0.37724874633400807
+    }
+  },
+  {
+    "embedding": "hybrid_physics_fft",
+    "model": "linear",
+    "best_objective": 4.3129693653079855,
+    "seed": 3,
+    "hyperparams": {}
+  },
+  {
+    "embedding": "physics_features_v1",
+    "model": "linear",
+    "best_objective": 4.69011689272902,
+    "seed": 3,
+    "hyperparams": {}
+  },
+  {
+    "embedding": "physics_features_v1",
+    "model": "ridge",
+    "best_objective": 4.6952933675351645,
+    "seed": 3,
+    "hyperparams": {
+      "alpha": 0.00268068531788365
+    }
+  },
+  {
+    "embedding": "hybrid_physics_fft",
+    "model": "mlp_small",
+    "best_objective": 4.8213948405351905,
+    "seed": 3,
+    "hyperparams": {
+      "hidden_layer_sizes": [
+        64,
+        32
+      ],
+      "learning_rate_init": 0.0027688156266883614,
+      "alpha": 0.00021313174674015005,
+      "max_iter": 400
+    }
+  },
+  {
+    "embedding": "hybrid_physics_fft",
+    "model": "gradient_boosting",
+    "best_objective": 5.812668147008649,
+    "seed": 5,
+    "hyperparams": {
+      "n_estimators": 354,
+      "learning_rate": 0.04898509847090311,
+      "max_depth": 2
+    }
+  },
+  {
+    "embedding": "physics_features_v1",
+    "model": "mlp_small",
+    "best_objective": 6.759318429741995,
+    "seed": 3,
+    "hyperparams": {
+      "hidden_layer_sizes": [
+        64,
+        32
+      ],
+      "learning_rate_init": 0.0001477173663542422,
+      "alpha": 5.4014176714049747e-05,
+      "max_iter": 400
+    }
+  },
+  {
+    "embedding": "physics_features_v1",
+    "model": "gradient_boosting",
+    "best_objective": 6.854053444587952,
+    "seed": 5,
+    "hyperparams": {
+      "n_estimators": 354,
+      "learning_rate": 0.04898509847090311,
+      "max_depth": 2
+    }
+  },
+  {
+    "embedding": "hybrid_physics_fft",
+    "model": "random_forest",
+    "best_objective": 7.909337159208112,
+    "seed": 5,
+    "hyperparams": {
+      "n_estimators": 125,
+      "max_depth": 15
+    }
+  },
+  {
+    "embedding": "physics_features_v1",
+    "model": "random_forest",
+    "best_objective": 8.11232453284798,
+    "seed": 5,
+    "hyperparams": {
+      "n_estimators": 280,
+      "max_depth": 15
+    }
+  },
+  {
+    "embedding": "raw_window",
+    "model": "gradient_boosting",
+    "best_objective": 8.638258574575222,
+    "seed": 3,
+    "hyperparams": {
+      "n_estimators": 147,
+      "learning_rate": 0.11165846801518921,
+      "max_depth": 5
+    }
+  },
+  {
+    "embedding": "raw_window",
+    "model": "random_forest",
+    "best_objective": 8.905084234378672,
+    "seed": 5,
+    "hyperparams": {
+      "n_estimators": 232,
+      "max_depth": 11
+    }
+  },
+  {
+    "embedding": "fft_features",
+    "model": "ridge",
+    "best_objective": 12.453416709469575,
+    "seed": 5,
+    "hyperparams": {
+      "alpha": 10.957309999172267
+    }
+  },
+  {
+    "embedding": "fft_features",
+    "model": "mlp_small",
+    "best_objective": 12.476936651582928,
+    "seed": 3,
+    "hyperparams": {
+      "hidden_layer_sizes": [
+        64,
+        32
+      ],
+      "learning_rate_init": 0.00014261608189364018,
+      "alpha": 8.856090101436472e-06,
+      "max_iter": 400
+    }
+  },
+  {
+    "embedding": "fft_features",
+    "model": "linear",
+    "best_objective": 13.423945468576951,
+    "seed": 3,
+    "hyperparams": {}
+  },
+  {
+    "embedding": "raw_window",
+    "model": "mlp_small",
+    "best_objective": 14.031177941252627,
+    "seed": 5,
+    "hyperparams": {
+      "hidden_layer_sizes": [
+        64,
+        32
+      ],
+      "learning_rate_init": 0.0001250475721915889,
+      "alpha": 3.4156669942792095e-05,
+      "max_iter": 400
+    }
+  },
+  {
+    "embedding": "fft_features",
+    "model": "gradient_boosting",
+    "best_objective": 14.819178534580617,
+    "seed": 3,
+    "hyperparams": {
+      "n_estimators": 310,
+      "learning_rate": 0.02668449030649678,
+      "max_depth": 2
+    }
+  },
+  {
+    "embedding": "fft_features",
+    "model": "random_forest",
+    "best_objective": 15.7625285571077,
+    "seed": 5,
+    "hyperparams": {
+      "n_estimators": 232,
+      "max_depth": 11
+    }
+  },
+  {
+    "embedding": "raw_window",
+    "model": "ridge",
+    "best_objective": 15.932821217489291,
+    "seed": 3,
+    "hyperparams": {
+      "alpha": 0.00268068531788365
+    }
+  },
+  {
+    "embedding": "raw_window",
+    "model": "linear",
+    "best_objective": 339.19514674104283,
+    "seed": 3,
+    "hyperparams": {}
+  }
+]

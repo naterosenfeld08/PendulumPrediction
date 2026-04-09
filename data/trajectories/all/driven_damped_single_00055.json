@@ -1,0 +1,18 @@
+{
+  "trajectory_id": "driven_damped_single_00055",
+  "system_name": "driven_damped_single",
+  "parameters": {
+    "m": 0.9031233638809418,
+    "L": 1.1101729618672382,
+    "g": 9.81,
+    "damping": 0.20769288385315116,
+    "drive_amplitude": 1.060569919294376,
+    "drive_frequency": 0.7515492795166714,
+    "theta": -0.5655973356918048,
+    "omega": -0.6747441388928827
+  },
+  "metadata": {
+    "seed": 621310260,
+    "noise_source": "none"
+  }
+}

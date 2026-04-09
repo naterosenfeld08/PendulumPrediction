@@ -86,6 +86,7 @@ def generate_trajectory_corpus(base_config: dict, cfg: GenerationConfig) -> dict
     shuffled = list(all_ids)
     rng.shuffle(shuffled)
     split_map = split_ids(shuffled, train_frac=cfg.train_frac, val_frac=cfg.val_frac)
+    split_membership = {traj_id: split for split, ids in split_map.items() for traj_id in ids}
 
     for split, ids in split_map.items():
         for traj_id in ids:
@@ -98,12 +99,42 @@ def generate_trajectory_corpus(base_config: dict, cfg: GenerationConfig) -> dict
             dst_npz.write_bytes(src_npz.read_bytes())
             dst_json.write_text(src_json.read_text(encoding="utf-8"), encoding="utf-8")
 
+    system_split_counts: dict[str, dict[str, int]] = {}
+    for rec in records_meta:
+        sys_name = rec["system_name"]
+        split = split_membership[rec["trajectory_id"]]
+        if sys_name not in system_split_counts:
+            system_split_counts[sys_name] = {"train": 0, "val": 0, "test": 0}
+        system_split_counts[sys_name][split] += 1
+
+    overlap_count = len(set(split_map["train"]) & set(split_map["val"])) + len(
+        set(split_map["train"]) & set(split_map["test"])
+    ) + len(set(split_map["val"]) & set(split_map["test"]))
+
     manifest = {
         "n_total": count,
         "splits": {k: len(v) for k, v in split_map.items()},
         "records": records_meta,
+        "split_integrity": {
+            "train_frac": cfg.train_frac,
+            "val_frac": cfg.val_frac,
+            "test_frac": 1.0 - cfg.train_frac - cfg.val_frac,
+            "overlap_count": int(overlap_count),
+            "system_split_counts": system_split_counts,
+        },
     }
     (cfg.output_dir / "manifest.json").write_text(
         json.dumps(manifest, indent=2), encoding="utf-8"
+    )
+    (cfg.output_dir / "split_summary.json").write_text(
+        json.dumps(
+            {
+                "splits": {k: len(v) for k, v in split_map.items()},
+                "overlap_count": int(overlap_count),
+                "system_split_counts": system_split_counts,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
     )
     return manifest["splits"]

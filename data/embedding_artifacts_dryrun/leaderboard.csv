@@ -1,0 +1,25 @@
+embedding,model,best_objective,seed,hyperparams
+physics_features_v1,persistence,3.4149744053307436,3,{}
+raw_window,persistence,3.4149744053307436,3,{}
+fft_features,persistence,3.4149744053307436,3,{}
+hybrid_physics_fft,persistence,3.4149744053307436,3,{}
+hybrid_physics_fft,ridge,4.135287716186988,5,"{""alpha"": 0.37724874633400807}"
+hybrid_physics_fft,linear,4.3129693653079855,3,{}
+physics_features_v1,linear,4.69011689272902,3,{}
+physics_features_v1,ridge,4.6952933675351645,3,"{""alpha"": 0.00268068531788365}"
+hybrid_physics_fft,mlp_small,4.8213948405351905,3,"{""alpha"": 0.00021313174674015005, ""hidden_layer_sizes"": [64, 32], ""learning_rate_init"": 0.0027688156266883614, ""max_iter"": 400}"
+hybrid_physics_fft,gradient_boosting,5.812668147008649,5,"{""learning_rate"": 0.04898509847090311, ""max_depth"": 2, ""n_estimators"": 354}"
+physics_features_v1,mlp_small,6.759318429741995,3,"{""alpha"": 5.4014176714049747e-05, ""hidden_layer_sizes"": [64, 32], ""learning_rate_init"": 0.0001477173663542422, ""max_iter"": 400}"
+physics_features_v1,gradient_boosting,6.854053444587952,5,"{""learning_rate"": 0.04898509847090311, ""max_depth"": 2, ""n_estimators"": 354}"
+hybrid_physics_fft,random_forest,7.909337159208112,5,"{""max_depth"": 15, ""n_estimators"": 125}"
+physics_features_v1,random_forest,8.11232453284798,5,"{""max_depth"": 15, ""n_estimators"": 280}"
+raw_window,gradient_boosting,8.638258574575222,3,"{""learning_rate"": 0.11165846801518921, ""max_depth"": 5, ""n_estimators"": 147}"
+raw_window,random_forest,8.905084234378672,5,"{""max_depth"": 11, ""n_estimators"": 232}"
+fft_features,ridge,12.453416709469575,5,"{""alpha"": 10.957309999172267}"
+fft_features,mlp_small,12.476936651582928,3,"{""alpha"": 8.856090101436472e-06, ""hidden_layer_sizes"": [64, 32], ""learning_rate_init"": 0.00014261608189364018, ""max_iter"": 400}"
+fft_features,linear,13.423945468576951,3,{}
+raw_window,mlp_small,14.031177941252627,5,"{""alpha"": 3.4156669942792095e-05, ""hidden_layer_sizes"": [64, 32], ""learning_rate_init"": 0.0001250475721915889, ""max_iter"": 400}"
+fft_features,gradient_boosting,14.819178534580617,3,"{""learning_rate"": 0.02668449030649678, ""max_depth"": 2, ""n_estimators"": 310}"
+fft_features,random_forest,15.7625285571077,5,"{""max_depth"": 11, ""n_estimators"": 232}"
+raw_window,ridge,15.932821217489291,3,"{""alpha"": 0.00268068531788365}"
+raw_window,linear,339.19514674104283,3,{}

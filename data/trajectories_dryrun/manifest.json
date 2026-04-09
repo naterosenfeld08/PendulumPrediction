@@ -1,0 +1,76 @@
+{
+  "n_total": 12,
+  "splits": {
+    "train": 8,
+    "val": 2,
+    "test": 2
+  },
+  "records": [
+    {
+      "trajectory_id": "double_pendulum_00000",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00001",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00002",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00003",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00004",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "double_pendulum_00005",
+      "system_name": "double_pendulum"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00000",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00001",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00002",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00003",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00004",
+      "system_name": "driven_damped_single"
+    },
+    {
+      "trajectory_id": "driven_damped_single_00005",
+      "system_name": "driven_damped_single"
+    }
+  ],
+  "split_integrity": {
+    "train_frac": 0.7,
+    "val_frac": 0.2,
+    "test_frac": 0.10000000000000003,
+    "overlap_count": 0,
+    "system_split_counts": {
+      "double_pendulum": {
+        "train": 4,
+        "val": 2,
+        "test": 0
+      },
+      "driven_damped_single": {
+        "train": 4,
+        "val": 0,
+        "test": 2
+      }
+    }
+  }
+}
